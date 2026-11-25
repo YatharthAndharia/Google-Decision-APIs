@@ -1,0 +1,13 @@
+# secrets
+.env
+.streamlit/secrets.toml
+
+# local environment
+venv/
+__pycache__/
+*.pyc
+
+# video production files (the videos are hosted on YouTube)
+brag-output/
+brag-output-*/
+demo-media/

@@ -1,0 +1,43 @@
+[theme]
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "'Plus Jakarta Sans':https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+baseRadius = "0.6rem"
+buttonRadius = "0.6rem"
+baseFontSize = 15
+headingFontWeights = [800, 700, 700, 600, 600, 600]
+showWidgetBorder = true
+showSidebarBorder = true
+chartCategoricalColors = ["#6366F1", "#14B8A6", "#F59E0B", "#EC4899", "#0EA5E9", "#84CC16"]
+
+[theme.light]
+primaryColor = "#4F46E5"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F6FA"
+textColor = "#1E2230"
+borderColor = "#E3E5EE"
+linkColor = "#4F46E5"
+
+[theme.light.sidebar]
+backgroundColor = "#F7F7FB"
+
+[theme.dark]
+primaryColor = "#818CF8"
+backgroundColor = "#0F1117"
+secondaryBackgroundColor = "#181B25"
+textColor = "#E7E9F0"
+borderColor = "#2A2E3B"
+linkColor = "#A5B4FC"
+
+[theme.dark.sidebar]
+backgroundColor = "#13151D"
+
+[server]
+# Per-file upload cap in MB (keep in sync with MAX_UPLOAD_MB for the public demo).
+maxUploadSize = 20
+
+[client]
+toolbarMode = "viewer"
+
+[browser]
+gatherUsageStats = false
