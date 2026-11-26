@@ -439,8 +439,8 @@ input[type="search"] { max-width: 100%; }
 .dist-out b { font-family: var(--font-display); font-size: 18px; }
 
 /* ---------- labs ---------- */
-.lab { display: grid; }
-@media (min-width: 900px) { .lab { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+div.lab { display: grid; }
+@media (min-width: 900px) { div.lab { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .lab-controls { padding: 18px 20px; display: grid; gap: 14px; align-content: start; border-bottom: 1px solid var(--line); min-width: 0; }
 @media (min-width: 900px) { .lab-controls { border-bottom: 0; border-right: 1px solid var(--line); } }
 .lab-out { padding: 18px 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
@@ -557,6 +557,170 @@ input[type="range"] { width: 100%; accent-color: var(--accent); min-width: 0; }
 footer.sources { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); display: grid; gap: 10px; }
 footer.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
+/* ---------- developer zone ---------- */
+/* One deliberate dark look in both themes, so the zone is easy to spot. It redefines the page tokens, so every component inside follows it. */
+.dz-skin {
+  --bg: #0E1030; --surface: #161A42; --surface-2: #1D2152; --line: #2D3275; --line-strong: #3E4590;
+  --fg: #ECEEFF; --muted: #B6BBE3; --faint: #9097C9;
+  --accent: #A5B4FC; --accent-ink: #0E1030; --accent-soft: #272C6B;
+  --t-noul: #84B8FF; --t-noul-soft: #1B2B60; --t-choice: #C9B6FF; --t-choice-soft: #2E2566;
+  --t-score: #F7C15C; --t-score-soft: #3B2D16;
+  --good: #4ADEB0; --good-soft: #133D36; --bad: #FF9A90; --bad-soft: #45212C; --mid: #F7C15C; --meter: #2DD4BF;
+  --code-bg: #0A0C26; --code-fg: #DCDFF8; --code-key: #A5B4FC; --code-str: #6EE7B7; --code-num: #FCD34D; --code-com: #9097C9;
+  --hl: #403E1C; --hl-line: #E8B500;
+  --grid: rgba(165, 180, 252, .06);
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 32px -18px rgba(0,0,0,.75);
+  color-scheme: dark;
+  color: var(--fg);
+}
+section.sec.dev-zone {
+  margin-top: 64px; padding: 40px clamp(16px, 3.6vw, 44px) 48px;
+  border: 1px solid var(--line); border-radius: 22px;
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.dev-zone h2 { font-size: clamp(28px, 3.6vw, 40px); }
+.dz-badge { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.dz-icon { display: inline-grid; place-items: center; min-width: 34px; height: 28px; padding: 0 7px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-mono); font-weight: 700; font-size: 12.5px; letter-spacing: 0; flex: none; }
+.dz-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 26px; }
+@media (min-width: 760px) { .dz-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.dz-stats div { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.dz-stats b { font-family: var(--font-display); font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--accent); }
+.dz-stats span { font-size: 13px; color: var(--muted); }
+.dz-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 22px; padding: 8px; border-radius: 12px; background: color-mix(in srgb, var(--bg) 90%, transparent); border: 1px solid var(--line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 6; }
+@media (min-width: 1080px) { .dz-nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
+.dz-nav a { font-size: 13.5px; padding: 6px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; }
+.dz-nav a:hover { color: var(--fg); background: var(--surface-2); }
+.dz-nav a.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.dz-block { margin-top: 64px; scroll-margin-top: 24px; }
+@media (min-width: 1080px) { .dz-block { scroll-margin-top: 84px; } }
+.dz-h { font-size: clamp(22px, 2.6vw, 28px); font-weight: 800; margin-bottom: 12px; }
+.dev-zone #code-view { max-height: 560px; border-radius: 0 0 var(--radius) var(--radius); }
+
+.rail-dev { margin-top: 14px; border-radius: 12px; padding: 6px 6px 8px; background: var(--bg); border: 1px solid var(--line); }
+.rail .rail-dev .rail-label { color: var(--accent); display: flex; gap: 8px; align-items: center; margin: 6px 0 6px 6px; }
+.rail .rail-dev .rail-label .dz-icon { min-width: 26px; height: 20px; font-size: 10.5px; border-radius: 6px; padding: 0 5px; }
+.rail .rail-dev ol a { color: var(--muted); }
+.rail .rail-dev ol a:hover { color: var(--fg); background: var(--surface-2); }
+.rail .rail-dev ol a.on { color: var(--accent-ink); background: var(--accent); }
+.topbar nav a.dz-pill { background: var(--bg); color: var(--fg); border-color: var(--line-strong); font-family: var(--font-mono); font-size: 12.5px; }
+.topbar nav a.dz-pill.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.dev-entry { display: flex; align-items: center; gap: 14px; margin-top: 22px; padding: 12px 16px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line-strong); text-decoration: none; max-width: 540px; transition: border-color .2s; }
+.dev-entry:hover { border-color: var(--accent); }
+.dev-entry .t { display: grid; gap: 1px; font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+.dev-entry .t b { color: var(--fg); font-size: 14.5px; }
+.dev-entry .arr { margin-left: auto; color: var(--accent); flex: none; width: 18px; height: 18px; }
+
+.mind { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: var(--surface); display: grid; gap: 10px; align-content: start; min-width: 0; }
+.mind.s1 { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.mind-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mind-top .k { font-family: var(--font-mono); font-size: 11.5px; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; }
+.mind h4 { font-size: 18px; display: flex; gap: 8px; align-items: center; }
+.mind h4 svg { width: 20px; height: 20px; color: var(--accent); flex: none; }
+.mind p { font-size: 14.5px; color: var(--muted); }
+.mind .eg { font-family: var(--font-mono); font-size: 12.5px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; color: var(--code-fg); line-height: 1.6; overflow-wrap: anywhere; }
+.mind .eg small { display: block; color: var(--faint); font-size: 11.5px; margin-top: 4px; }
+
+.tag { display: inline-flex; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+.tag.ok { color: var(--good); background: var(--good-soft); }
+.tag.simp { color: var(--mid); background: var(--t-score-soft); }
+.pipe-rail { list-style: none; margin: 0; padding: 16px 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; border-bottom: 1px solid var(--line); }
+@media (min-width: 560px) { .pipe-rail { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .pipe-rail { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.pipe-rail button { width: 100%; height: 100%; text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 10px; cursor: pointer; display: grid; gap: 6px; align-content: start; transition: border-color .2s, background .2s; }
+.pipe-rail button:hover { border-color: var(--accent); }
+.pipe-rail .n { font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
+.pipe-rail .t { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.pipe-rail .bar { height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: auto; }
+.pipe-rail .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .45s ease; }
+.pipe-rail button.done .bar i, .pipe-rail button.on .bar i { width: 100%; }
+.pipe-rail button.on { border-color: var(--accent); background: var(--accent-soft); }
+.pipe-detail { display: grid; gap: 20px; padding: 20px; }
+@media (min-width: 900px) { .pipe-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: start; } }
+.pipe-detail h4 { font-size: 20px; }
+.pipe-detail p { font-size: 15px; }
+.vis { border: 1px solid var(--line); border-radius: 12px; background: var(--code-bg); padding: 16px; display: grid; gap: 12px; min-height: 230px; align-content: center; overflow: hidden; min-width: 0; }
+.toks { display: flex; flex-wrap: wrap; gap: 5px; }
+.tok { font-family: var(--font-mono); font-size: 12px; padding: 3px 7px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); animation: pop .35s backwards; }
+@keyframes pop { from { opacity: 0; transform: translateY(4px); } }
+.v-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+.v-row > div { display: grid; gap: 6px; }
+.patches { display: grid; grid-template-columns: repeat(6, 16px); gap: 3px; }
+.patches i { width: 16px; height: 16px; border-radius: 3px; animation: pop .35s backwards; }
+.wave { display: flex; gap: 2px; align-items: center; height: 40px; }
+.wave i { width: 3px; border-radius: 2px; background: var(--t-noul); }
+.layers { display: grid; gap: 6px; }
+.layer { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 11px; color: var(--faint); font-family: var(--font-mono); }
+.layer .dots { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 4px; }
+.layer .dots i { height: 11px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); animation: lit 2.6s infinite; }
+@keyframes lit { 0%, 70%, 100% { background: var(--surface-2); } 25% { background: var(--accent); } }
+.meaning { display: flex; flex-wrap: wrap; gap: 6px; }
+.meaning span { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--fg); }
+.branch { display: grid; gap: 12px; }
+.branch .src { text-align: center; padding: 10px; border-radius: 10px; border: 1px solid var(--accent); background: var(--accent-soft); font-size: 13px; font-weight: 600; }
+.branch .qs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.branch .q { border: 1px solid var(--line-strong); border-radius: 10px; padding: 8px; font-size: 12px; display: grid; gap: 6px; justify-items: start; position: relative; background: var(--surface); min-width: 0; }
+.branch .q::before { content: ""; position: absolute; left: 50%; top: -13px; height: 12px; border-left: 2px solid var(--accent); }
+.branch .q .k { font-family: var(--font-mono); font-weight: 600; overflow-wrap: anywhere; }
+.branch .q .chip { font-size: 10.5px; padding: 2px 7px; }
+.branch .wall { font-size: 12px; color: var(--faint); text-align: center; display: flex; align-items: center; gap: 8px; justify-content: center; }
+.branch .wall::before, .branch .wall::after { content: ""; flex: 1; border-top: 1px dashed var(--line-strong); }
+.raw { display: grid; gap: 8px; }
+.raw .pb .fill { background: var(--t-choice); }
+
+.race { display: grid; gap: 16px; }
+.lane { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface-2); display: grid; gap: 10px; }
+.lane-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 600; align-items: center; }
+.lane-head > span:first-child { display: inline-flex; gap: 8px; align-items: center; }
+.lane-count { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13.5px; }
+.lane-count b { color: var(--fg); }
+.cells { display: flex; flex-wrap: wrap; gap: 3px; min-height: 12px; }
+.cells i { width: 10px; height: 10px; border-radius: 3px; background: var(--line); }
+.cells i.f { background: var(--t-choice); }
+.cells i.pre { width: 36px; }
+.cells i.pre.f { background: var(--accent); }
+.lane-text { font-size: 13px; color: var(--muted); min-height: 2.8em; font-family: var(--font-mono); overflow-wrap: anywhere; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+.share { display: grid; gap: 22px; }
+@media (min-width: 900px) { .share { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: center; } }
+.sbar { display: grid; gap: 6px; }
+.sbar-top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; flex-wrap: wrap; }
+.sbar-top b { font-family: var(--font-display); font-size: 18px; font-variant-numeric: tabular-nums; }
+.track.big { height: 14px; }
+.fill.gen { background: var(--t-choice); }
+.share-ratio { font-size: 15px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); }
+.share-ratio b { font-family: var(--font-display); font-size: 20px; }
+
+.cal { display: grid; gap: 20px; }
+@media (min-width: 900px) { .cal { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; } }
+.cal svg { width: 100%; max-width: 440px; height: auto; display: block; }
+.cal .gridl { stroke: var(--line); stroke-width: 1; }
+.cal .diag { stroke: var(--faint); stroke-dasharray: 5 5; stroke-width: 1.5; }
+.cal .gap { stroke: var(--bad); stroke-width: 2.5; stroke-linecap: round; transition: all .5s; }
+.cal .curve { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+.cal .pt { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+.cal text { fill: var(--muted); font-size: 11px; font-family: var(--font-body); }
+.cal .err { font-family: var(--font-display); font-size: 40px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+
+.pat-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.pat { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px; display: grid; gap: 12px; align-content: start; }
+.pat h4 { font-size: 16.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pat p { font-size: 14px; color: var(--muted); }
+.flow-mini { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; }
+.fm { padding: 5px 9px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface-2); }
+.fm.dz { border-color: var(--accent); background: var(--accent-soft); font-family: var(--font-mono); }
+.fm.gen { border-color: var(--t-choice); }
+.fm.ok { border-color: var(--good); }
+.fm.stop { border-color: var(--bad); }
+.flow-mini .ar { width: 16px; height: 10px; flex: none; color: var(--faint); }
+.forks { display: grid; gap: 6px; padding-left: 14px; border-left: 2px solid var(--line-strong); }
+.forks .flow-mini { font-size: 12px; }
+.forks .when { font-family: var(--font-mono); font-size: 11.5px; color: var(--faint); }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
@@ -593,9 +757,19 @@ footer.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
         <li><a href="#strengths">Strengths and limits</a></li>
         <li><a href="#playground">The playground</a></li>
         <li><a href="#examples">Real examples</a></li>
-        <li><a href="#developers">For developers</a></li>
         <li><a href="#good-questions">Writing good questions</a></li>
       </ol>
+      <div class="rail-dev dz-skin">
+        <p class="rail-label"><span class="dz-icon" aria-hidden="true">&lt;/&gt;</span>For developers</p>
+        <ol>
+          <li><a href="#developers">Developer zone</a></li>
+          <li><a href="#dev-architecture">How it works inside</a></li>
+          <li><a href="#dev-efficiency">Why it is efficient</a></li>
+          <li><a href="#dev-probabilities">Where probabilities come from</a></li>
+          <li><a href="#dev-patterns">Patterns</a></li>
+          <li><a href="#dev-code">Code and API rules</a></li>
+        </ol>
+      </div>
       <p class="rail-label">Reference</p>
       <ol>
         <li><a href="#glossary">Glossary</a></li>
@@ -611,6 +785,7 @@ footer.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     <div class="topbar">
       <nav aria-label="Contents" id="toc-mobile">
         <a href="#start">Start</a>
+        <a class="dz-pill dz-skin" href="#developers">&lt;/&gt; Developers</a>
         <a href="#decision-models">Decision models</a>
         <a href="#the-api">The API</a>
         <a href="#the-model">The model</a>
@@ -623,7 +798,6 @@ footer.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
         <a href="#strengths">Strengths</a>
         <a href="#playground">Playground</a>
         <a href="#examples">Examples</a>
-        <a href="#developers">Developers</a>
         <a href="#good-questions">Tips</a>
         <a href="#glossary">Glossary</a>
       </nav>
@@ -647,6 +821,11 @@ footer.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
             <span><b>14</b> real examples</span>
             <span><b>4</b> video guides</span>
           </div>
+          <a class="dev-entry dz-skin" href="#developers">
+            <span class="dz-icon" aria-hidden="true">&lt;/&gt;</span>
+            <span class="t"><b>Building with the API?</b>Architecture, efficiency and code in the developer zone</span>
+            <svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
         </div>
 
         <div class="panel instrument" aria-live="polite">
@@ -1428,40 +1607,9 @@ stars = a[<span class="c-s">"score"</span>] + <span class="c-n">1</span>        
       <div class="gallery mt-m" id="gallery"></div>
     </section>
 
-    <!-- ===================== DEVELOPERS ===================== -->
-    <section class="sec dev" id="developers">
-      <p class="eyebrow">Using it · 4</p>
-      <h2>For developers</h2>
-      <div class="prose">
-        <p class="lede">The playground uses Google's <code>google-genai</code> Python SDK. Here is the same call it makes, ready to copy.</p>
-      </div>
-
-      <div class="panel mt-l">
-        <div class="code-tabs">
-          <div class="seg" role="tablist" aria-label="Code sample">
-            <button role="tab" aria-selected="true" data-code="py">Python</button>
-            <button role="tab" aria-selected="false" data-code="file">Adding a photo</button>
-            <button role="tab" aria-selected="false" data-code="json">Real response</button>
-          </div>
-          <button class="btn btn-ghost btn-sm" id="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy</span></button>
-        </div>
-        <pre class="code" id="code-view" tabindex="0"></pre>
-      </div>
-
-      <h3 class="sub-h">Rules to know</h3>
-      <div class="rules">
-        <div class="rule"><b>type: "noul"</b><span>Criteria are optional: <code>true_description</code> and <code>false_description</code>. Returns <code>noul</code>, the chance of yes from 0 to 1.</span></div>
-        <div class="rule"><b>type: "choice"</b><span>Criteria are an object of 2 to 255 options, each <code>key: description</code>. Returns <code>choice</code> and <code>probabilities</code>.</span></div>
-        <div class="rule"><b>type: "score"</b><span>Criteria are a list of 2 to 255 levels, lowest first, numbered from 0. Returns <code>score</code>, <code>probabilities</code> and a <code>legend</code>.</span></div>
-        <div class="rule"><b>input blocks</b><span><code>text</code>, <code>image</code>, <code>audio</code>, <code>video</code> or <code>document</code> (PDF). Files are base64 with a <code>mime_type</code>.</span></div>
-        <div class="rule"><b>resolution</b><span>For image and video blocks: <code>low</code>, <code>medium</code>, <code>high</code> or <code>ultra_high</code>.</span></div>
-        <div class="rule"><b>api_version: "v1beta"</b><span>The playground calls the API through the <code>v1beta</code> version of the Gemini API.</span></div>
-      </div>
-    </section>
-
     <!-- ===================== GOOD QUESTIONS ===================== -->
     <section class="sec" id="good-questions">
-      <p class="eyebrow">Using it · 5</p>
+      <p class="eyebrow">Using it · 4</p>
       <h2>Writing good questions</h2>
       <div class="prose">
         <p class="lede">The model can only choose well between answers that are clear. Most of the quality comes from how you write the question.</p>
@@ -1473,6 +1621,296 @@ stars = a[<span class="c-s">"score"</span>] + <span class="c-n">1</span>        
         <div class="tip"><h4>Keep options distinct</h4><p>Overlapping options split the probability between them and lower confidence.</p><div class="pair"><span class="bad">slow_service · long_wait</span><span class="good">wait_time · staff</span></div></div>
         <div class="tip"><h4>Order levels, and describe each one</h4><p>List rubric levels from lowest to highest, with a short sentence for each.</p><div class="pair"><span class="bad">Bad · OK · Good</span><span class="good">Poor: unclear · Fair: gaps · Good: clear · Excellent: complete</span></div></div>
         <div class="tip"><h4>Act on confidence</h4><p>Pick a threshold. Let high-confidence answers flow through and send the rest to a person.</p><div class="pair"><span class="bad">Trust every answer the same</span><span class="good">Auto-route above 90%, review below</span></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== DEVELOPER ZONE ===================== -->
+    <section class="sec dev-zone dz-skin" id="developers" aria-labelledby="dev-title">
+      <p class="dz-badge"><span class="dz-icon" aria-hidden="true">&lt;/&gt;</span>Developer zone</p>
+      <h2 id="dev-title">Build with the Decisions API</h2>
+      <p class="lede">How a decision model works inside, why it does so much less work than a generative model, and the code to call it. Written for engineers, and readable by anyone curious.</p>
+      <div class="dz-stats">
+        <div><b>1</b><span>forward pass per request</span></div>
+        <div><b>0</b><span>output tokens</span></div>
+        <div><b>50–100 ms</b><span>model compute, per Google</span></div>
+        <div><b>1,000</b><span>questions on one input</span></div>
+      </div>
+      <nav class="dz-nav" id="dz-nav" aria-label="In the developer zone">
+        <a href="#dev-architecture">How it works inside</a>
+        <a href="#dev-efficiency">Why it is efficient</a>
+        <a href="#dev-probabilities">Where probabilities come from</a>
+        <a href="#dev-patterns">Patterns</a>
+        <a href="#dev-code">Code and API rules</a>
+      </nav>
+
+      <!-- 1 · architecture -->
+      <div class="dz-block" id="dev-architecture" data-spy>
+        <p class="eyebrow">1 · How it works inside</p>
+        <h3 class="dz-h">A System 1 model</h3>
+        <div class="prose">
+          <p class="lede">Psychologists describe two ways of thinking. System 1 is fast and automatic: you glance at a text message and just know it looks like a scam. System 2 is slow and deliberate: you reason it through, step by step. A decision model is built to be System 1 for your software.</p>
+        </div>
+        <div class="two mt-l">
+          <div class="mind s1">
+            <div class="mind-top"><span class="k">System 1 · fast</span><span class="chip noul">Decision model</span></div>
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>One look, one judgement</h4>
+            <p>Reads the input once and judges every option at the same time. It returns a pick and a probability, and nothing else.</p>
+            <div class="eg">is_scam → Yes · 0.99<small>1 forward pass · 0 output tokens</small></div>
+          </div>
+          <div class="mind s2">
+            <div class="mind-top"><span class="k">System 2 · slow</span><span class="chip plain">Generative model</span></div>
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h13"/></svg>Thinks it through, word by word</h4>
+            <p>Writes its answer one token at a time, and every token needs another run of the network. Reasoning models also write thinking tokens before the answer.</p>
+            <div class="eg">"Yes. This message looks like a scam. It asks for a small fee…"<small>1 forward pass per token · output tokens billed</small></div>
+          </div>
+        </div>
+        <p class="note mt-m">The two systems come from Daniel Kahneman's book <i>Thinking, Fast and Slow</i>. Researchers now use the name "System 1 models" for fast decision models like this one.</p>
+
+        <h3 class="sub-h">What Google has said, and what it has not</h3>
+        <div class="two">
+          <div class="listbox pro"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5 9-10"/></svg>Confirmed by Google</h4>
+            <ul>
+              <li><span>"Built on Gemini's native multimodal architecture."</span></li>
+              <li><span>It "scores your candidate options in a single forward pass", "without token-by-token decoding".</span></li>
+              <li><span>"Every question runs against the shared input in one forward pass. Questions can't see each other."</span></li>
+              <li><span>Answers are "calibrated probabilities". Yes / No values are kept between 0.01 and 0.99.</span></li>
+              <li><span>50 to 100 ms of model compute, 150 to 250 ms end to end, nearly flat from 1 to 100 questions.</span></li>
+            </ul>
+          </div>
+          <div class="listbox avoid"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 7l10 10M17 7 7 17"/></svg>Not published</h4>
+            <ul>
+              <li><span>Model size and layer design.</span></li>
+              <li><span>Training data and training method.</span></li>
+              <li><span>Exactly how options are scored, and how calibration is done.</span></li>
+              <li><span>Benchmark scores in text form. They appear only in charts in Google's post.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="sub-h">Inside one request</h3>
+        <p class="muted" style="max-width:68ch">Follow the scam text example through the model, step by step. Click a step or press Play. Steps tagged <span class="tag ok">Confirmed</span> match what Google has said. Steps tagged <span class="tag simp">Simplified</span> are our explanation of how transformer models usually work, not Google's specification.</p>
+        <div class="panel mt-m">
+          <div class="panel-head">
+            <span class="panel-title">One request, one forward pass</span>
+            <div class="field-row">
+              <button class="btn btn-ghost btn-sm" id="pipe-prev" type="button">Back</button>
+              <button class="btn btn-primary btn-sm" id="pipe-play" type="button">Play</button>
+              <button class="btn btn-ghost btn-sm" id="pipe-next" type="button">Next</button>
+            </div>
+          </div>
+          <ol class="pipe-rail" id="pipe-rail"></ol>
+          <div class="pipe-detail" id="pipe-detail" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- 2 · efficiency -->
+      <div class="dz-block" id="dev-efficiency" data-spy>
+        <p class="eyebrow">2 · Why it is efficient</p>
+        <h3 class="dz-h">It reads once and never writes</h3>
+        <div class="prose">
+          <p class="lede">A generative model does two jobs. It reads your prompt, then writes an answer one token at a time, running the whole network again for every token. A decision model only does the first job. With no writing step, there is nothing to wait for and nothing to bill as output.</p>
+        </div>
+
+        <div class="panel mt-l">
+          <div class="panel-head"><span class="panel-title">Forward passes for one answer</span><button class="btn btn-primary btn-sm" id="race-play" type="button">Play</button></div>
+          <div class="panel-body race">
+            <div class="field">
+              <label for="race-len">Length of the generative model's answer</label>
+              <div class="slider" style="grid-template-columns:minmax(0,1fr) 96px"><input type="range" id="race-len" min="1" max="300" value="60"><output id="race-len-out" for="race-len">60 tokens</output></div>
+            </div>
+            <div class="lane">
+              <div class="lane-head"><span><span class="chip plain">Writes</span>Generative model</span><span class="lane-count"><b id="race-gen-n">61</b> forward passes · <b id="race-gen-o">60</b> output tokens</span></div>
+              <div class="cells" id="race-gen"></div>
+              <p class="lane-text" id="race-gen-text"></p>
+            </div>
+            <div class="lane">
+              <div class="lane-head"><span><span class="chip noul">Chooses</span>Decision model</span><span class="lane-count"><b id="race-dec-n">1</b> forward pass · <b>0</b> output tokens</span></div>
+              <div class="cells" id="race-dec"></div>
+              <p class="lane-text" id="race-dec-text"></p>
+            </div>
+            <div class="legend"><span><i style="background:var(--accent)"></i>Read the input</span><span><i style="background:var(--t-choice)"></i>Write one token</span></div>
+            <p class="note">Each square is one forward pass. They are not equal in real time: reading a long input takes longer than writing one token. What matters is the count, which grows with every token a generative model writes. The decision model's count never changes.</p>
+          </div>
+        </div>
+
+        <div class="facts mt-m">
+          <div class="fact"><span class="big">50–100<small> ms</small></span><span class="what">Model compute</span><span class="why">Per Google.</span></div>
+          <div class="fact"><span class="big">150–250<small> ms</small></span><span class="what">End to end</span><span class="why">Per Google, nearly flat from 1 to 100 questions.</span></div>
+          <div class="fact"><span class="big">0.97–1.29<small> s</small></span><span class="what">In our playground</span><span class="why">Measured, including the network and the Streamlit app.</span></div>
+        </div>
+
+        <h3 class="sub-h">Many questions, one read</h3>
+        <p class="muted" style="max-width:68ch">To ask a generative model several questions about one input, the usual way is one call per question, and each call reads the whole input again. The Decisions API reads the input once. In Google's words, "each question adds only its own instruction and criteria tokens".</p>
+        <div class="panel mt-m">
+          <div class="panel-head"><span class="panel-title">Tokens processed</span></div>
+          <div class="panel-body share">
+            <div class="stack" style="gap:16px">
+              <div class="field">
+                <span class="lab">Input</span>
+                <div class="seg" role="group" aria-label="Input size">
+                  <button type="button" aria-pressed="false" data-in="45">Text message · 45</button>
+                  <button type="button" aria-pressed="true" data-in="532">Photo · 532</button>
+                  <button type="button" aria-pressed="false" data-in="5000">Long document · 5,000</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="share-q">Questions about it</label>
+                <div class="slider" style="grid-template-columns:minmax(0,1fr) 56px"><input type="range" id="share-q" min="1" max="100" value="10"><output id="share-q-out" for="share-q">10</output></div>
+              </div>
+            </div>
+            <div class="stack" style="gap:14px" aria-live="polite">
+              <div class="sbar"><div class="sbar-top"><span>One generative call per question</span><b id="share-gen"></b></div><div class="track big"><div class="fill gen" id="share-gen-bar"></div></div><span class="note" id="share-gen-sub"></span></div>
+              <div class="sbar"><div class="sbar-top"><span>One Decisions API request</span><b id="share-dec"></b></div><div class="track big"><div class="fill" id="share-dec-bar"></div></div><span class="note" id="share-dec-sub"></span></div>
+              <p class="share-ratio" id="share-ratio"></p>
+            </div>
+          </div>
+        </div>
+        <p class="note mt-m">Assumes about 100 tokens per question including its options, which matches our real examples, and 10 output tokens for each short generative answer. The photo is the real 532 image tokens of the dinner photo. The text message is our scam example's text alone, about 45 tokens. We compare tokens, not dollars, because prices differ per model.</p>
+
+        <h3 class="sub-h">Side by side</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th></th><th>Generative model</th><th>Decision model</th></tr></thead>
+            <tbody>
+              <tr><th>Work for one answer</th><td>Read the input, then one forward pass per output token</td><td class="hi">One forward pass that reads and scores together</td></tr>
+              <tr><th>Output tokens</th><td>Grow with the answer, plus thinking tokens for reasoning models</td><td class="hi">Zero</td></tr>
+              <tr><th>Time as answers get longer</th><td>Grows with every token</td><td class="hi">There is no answer text to grow</td></tr>
+              <tr><th>Time with more questions</th><td>Grows with more calls or longer outputs</td><td class="hi">Nearly flat from 1 to 100 questions, per Google</td></tr>
+              <tr><th>Input read per question</th><td>Again for each call, unless you cache it</td><td class="hi">Once per request</td></tr>
+              <tr><th>Getting the answer</th><td>Parse text or JSON, and handle answers that are off your list</td><td class="hi">Fixed fields, always one of your options</td></tr>
+              <tr><th>Probabilities</th><td>Not returned directly</td><td class="hi">For every option, calibrated</td></tr>
+              <tr><th>Explains its reasoning</th><td class="hi">Yes</td><td>No</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout mt-m"><b>Google's own comparison:</b> on its benchmark, Gemini Decision 1 is "nearly 5x cheaper" than Gemini 3.5 Flash-Lite used through the Interactions API.</div>
+      </div>
+
+      <!-- 3 · probabilities -->
+      <div class="dz-block" id="dev-probabilities" data-spy>
+        <p class="eyebrow">3 · Where probabilities come from</p>
+        <h3 class="dz-h">From raw scores to calibrated probabilities</h3>
+        <div class="prose">
+          <p class="lede">Inside the pass, each option ends up with a raw score, often called a logit. A formula then turns the scores into probabilities that add up to 1. The most common one is softmax. It stretches differences, so an option that scores a little higher gets a much bigger share.</p>
+          <p class="note"><span class="tag simp">Simplified</span> Softmax is the standard method for this. Google has not said which formula its model uses.</p>
+        </div>
+
+        <div class="panel mt-l">
+          <div class="panel-head"><span class="panel-title">Softmax lab · <span class="mono" style="text-transform:none;letter-spacing:0">message_type</span></span><button class="btn btn-ghost btn-sm" id="sm-reset" type="button">Reset</button></div>
+          <div class="lab">
+            <div class="lab-controls">
+              <span class="lab" style="font-size:13px;font-weight:600;color:var(--muted)">Raw score for each option</span>
+              <div class="stack" style="gap:12px" id="sm-sliders"></div>
+              <p class="note">The starting scores are chosen to reproduce the real answer for the scam text. Raise <code>promotion</code> to see how fast the pick can change.</p>
+            </div>
+            <div class="lab-out" aria-live="polite">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+                <span class="verdict pick" id="sm-pick">delivery</span>
+                <span class="muted" style="font-size:14px">Confidence <b id="sm-conf" style="color:var(--fg)">99.6%</b></span>
+              </div>
+              <div id="sm-probs"></div>
+              <div class="math" id="sm-formula"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout mt-m"><b>The 0.99 ceiling.</b> Google's docs say Yes / No values are kept between 0.01 and 0.99. Our scam message came back at exactly 0.99, the ceiling. Read 0.99 as "as sure as the API will say", not as certainty.</div>
+
+        <h3 class="sub-h">What "calibrated" looks like</h3>
+        <p class="muted" style="max-width:68ch">A probability is only useful if it is honest. To check, group many answers by confidence and count how often each group was right. A calibrated model's dots sit on the dashed diagonal. The red lines show the gap, and their average is the calibration error. Google says its model has the lowest calibration error on its benchmarks.</p>
+        <div class="panel mt-m">
+          <div class="panel-head">
+            <span class="panel-title">Reliability chart</span>
+            <div class="seg" role="group" aria-label="Model behaviour">
+              <button type="button" aria-pressed="true" data-cal="cal">Calibrated</button>
+              <button type="button" aria-pressed="false" data-cal="over">Overconfident</button>
+              <button type="button" aria-pressed="false" data-cal="under">Underconfident</button>
+            </div>
+          </div>
+          <div class="panel-body cal">
+            <svg id="cal-svg" viewBox="0 0 340 300" role="img" aria-label="Reliability chart"></svg>
+            <div class="stack" style="gap:12px" aria-live="polite">
+              <span class="lab" style="font-size:13px;font-weight:600;color:var(--muted)">Calibration error</span>
+              <span class="err" id="cal-err">1.3 points</span>
+              <p id="cal-text"></p>
+              <p class="note">Illustrative data that shows what calibration means. Not measured results.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 · patterns -->
+      <div class="dz-block" id="dev-patterns" data-spy>
+        <p class="eyebrow">4 · Patterns</p>
+        <h3 class="dz-h">Designs that use fast decisions well</h3>
+        <div class="prose">
+          <p class="lede">When a decision costs a fraction of a second and no output tokens, you can put one in front of almost any step. Four common patterns:</p>
+        </div>
+        <div class="pat-grid mt-l">
+          <article class="pat">
+            <h4>Router <span class="chip choice">choice</span></h4>
+            <p>Send each request to the right team, tool or model.</p>
+            <div class="flow-mini"><span class="fm">Request</span><svg class="ar" viewBox="0 0 16 10"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="fm dz">Which tool?</span><svg class="ar" viewBox="0 0 16 10"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="fm ok">search · calendar · none</span></div>
+          </article>
+          <article class="pat">
+            <h4>Guardrail <span class="chip noul">noul</span></h4>
+            <p>Check a message before an expensive or risky step.</p>
+            <div class="flow-mini"><span class="fm">User message</span><svg class="ar" viewBox="0 0 16 10"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="fm dz">Allowed?</span></div>
+            <div class="forks">
+              <div class="flow-mini"><span class="when">yes</span><span class="fm gen">Generative model answers</span></div>
+              <div class="flow-mini"><span class="when">no</span><span class="fm stop">Polite refusal</span></div>
+            </div>
+          </article>
+          <article class="pat">
+            <h4>Grader <span class="chip score">score</span></h4>
+            <p>Score a generative model's draft before a person sees it.</p>
+            <div class="flow-mini"><span class="fm gen">Draft reply</span><svg class="ar" viewBox="0 0 16 10"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="fm dz">How well supported?</span></div>
+            <div class="forks">
+              <div class="flow-mini"><span class="when">score ≥ 2</span><span class="fm ok">Send</span></div>
+              <div class="flow-mini"><span class="when">below</span><span class="fm stop">Rewrite or review</span></div>
+            </div>
+          </article>
+          <article class="pat">
+            <h4>Cascade <span class="chip plain">System 1, then System 2</span></h4>
+            <p>Answer clear cases fast, and pass only the hard ones to slow thinking.</p>
+            <div class="flow-mini"><span class="fm">Request</span><svg class="ar" viewBox="0 0 16 10"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="fm dz">Decision</span></div>
+            <div class="forks">
+              <div class="flow-mini"><span class="when">confidence ≥ 0.9</span><span class="fm ok">Act now</span></div>
+              <div class="flow-mini"><span class="when">below</span><span class="fm gen">Generative model or a person</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- 5 · code -->
+      <div class="dz-block" id="dev-code" data-spy>
+        <p class="eyebrow">5 · Code and API rules</p>
+        <h3 class="dz-h">Call it from Python</h3>
+        <div class="prose">
+          <p class="lede">The playground uses Google's <code>google-genai</code> Python SDK. Here is the same call it makes, ready to copy.</p>
+        </div>
+        <div class="panel mt-l">
+          <div class="code-tabs">
+            <div class="seg" role="tablist" aria-label="Code sample">
+              <button role="tab" aria-selected="true" data-code="py">Python</button>
+              <button role="tab" aria-selected="false" data-code="file">Adding a photo</button>
+              <button role="tab" aria-selected="false" data-code="json">Real response</button>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy</span></button>
+          </div>
+          <pre class="code" id="code-view" tabindex="0"></pre>
+        </div>
+
+        <h3 class="sub-h">Rules to know</h3>
+        <div class="rules">
+          <div class="rule"><b>type: "noul"</b><span>Criteria are optional: <code>true_description</code> and <code>false_description</code>. Returns <code>noul</code>, the chance of yes, kept between 0.01 and 0.99.</span></div>
+          <div class="rule"><b>type: "choice"</b><span>Criteria are an object of 2 to 255 options, each <code>key: description</code>. Returns <code>choice</code> and <code>probabilities</code>.</span></div>
+          <div class="rule"><b>type: "score"</b><span>Criteria are a list of 2 to 255 levels, lowest first, numbered from 0. Returns <code>score</code>, <code>probabilities</code> and a <code>legend</code>.</span></div>
+          <div class="rule"><b>input blocks</b><span><code>text</code>, <code>image</code>, <code>audio</code>, <code>video</code> or <code>document</code> (PDF). Files are base64 with a <code>mime_type</code>.</span></div>
+          <div class="rule"><b>resolution</b><span>For image and video blocks: <code>low</code>, <code>medium</code>, <code>high</code> or <code>ultra_high</code>.</span></div>
+          <div class="rule"><b>no context caching</b><span>Google's docs say repeated input across requests counts in full. Put every question about one input in the same request.</span></div>
+          <div class="rule"><b>api_version: "v1beta"</b><span>The playground calls the API through the <code>v1beta</code> version of the Gemini API.</span></div>
+        </div>
       </div>
     </section>
 
@@ -1494,6 +1932,8 @@ stars = a[<span class="c-s">"score"</span>] + <span class="c-n">1</span>        
         <ul>
           <li>Model facts and prices: <a href="https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/" target="_blank" rel="noopener">Google, "Gemini Decisions API: Fast, calibrated multimodal decisions"</a>, November 11, 2026.</li>
           <li>Every answer, probability, token count and response time in the examples comes from real <code>gemini-decision-1</code> runs in the playground, November 24–25, 2026. Response times measured in the playground include the network and the app.</li>
+          <li>Architecture facts: Google's launch post and the <a href="https://aistudio.google.com/docs/decisions-api" target="_blank" rel="noopener">Decisions API documentation</a>. Steps marked Simplified in the developer zone are our explanation of how transformer models usually work, not Google's specification.</li>
+          <li>The name "System 1 models": <a href="https://arxiv.org/pdf/2610.33775" target="_blank" rel="noopener">The Hitchhiker's Guide to System 1 Models: Fast Decision-Making Beyond LLMs</a> (arXiv).</li>
           <li>Use cases in the in-depth sections are illustrations of how each type can be applied. They are not measured results.</li>
           <li>Photos: burger dinner and "Clear Umbrella Rain Liverpool", both CC0 from Wikimedia Commons.</li>
           <li>Source code for the playground and this guide: <a href="https://github.com/YatharthAndharia/Google-Decision-APIs" target="_blank" rel="noopener">github.com/YatharthAndharia/Google-Decision-APIs</a>.</li>
@@ -2197,6 +2637,13 @@ const TERMS = [
   ["Confidence", "confidence", "The probability of the answer the model picked, from 0 to 1. The playground labels 80% and up High, 50 to 80% Moderate, and below 50% Low."],
   ["Calibration", "", "How well confidence matches reality. A calibrated model that says 80% is right about 80% of the time."],
   ["Single forward pass", "", "The model reads the input once and scores every option together, instead of writing an answer one word at a time. This is why it is fast."],
+  ["Forward pass", "", "One run of the input through the whole network, from the first layer to the last. A decision model needs one per request. A generative model needs one for every token it writes."],
+  ["Autoregressive decoding", "", "How generative models write: produce one token, add it to the text, run the network again, and repeat. Each token depends on the ones before it."],
+  ["Prefill", "", "The first step of a generative model, where it reads the whole prompt before writing anything."],
+  ["Logit", "raw score", "The model's raw, unscaled score for one option, before it becomes a probability."],
+  ["Softmax", "", "A common formula that turns raw scores into probabilities that add up to 1. Higher scores get a much bigger share."],
+  ["Calibration error", "", "How far confidence is from reality, on average. Zero means a 70% answer is right exactly 70% of the time."],
+  ["System 1 and System 2", "", "Fast, automatic judgement and slow, step-by-step reasoning, from Daniel Kahneman's Thinking, Fast and Slow. Decision models work like System 1."],
   ["Token", "", "A small unit of input the model reads, roughly a short word or part of an image. Pricing is per million input tokens."],
   ["Usage", "usage", "The token count in each response: input tokens per modality, and output tokens, which are always 0."],
   ["Latency", "", "The time from sending a request to getting the answer. Google quotes 150 to 250 ms. The playground shows its own measured time, which includes the network."],
@@ -2220,11 +2667,213 @@ function renderGloss() {
 $("#gloss-q").addEventListener("input", renderGloss);
 renderGloss();
 
+/* ============ developer zone: inside one request ============ */
+const SCAM_TOKENS = ["Hi", "!", "Your", "parcel", "could", "not", "be", "deliver", "ed", "because", "of", "an", "unpaid", "customs", "fee", "of", "$", "1", ".", "99", ".", "Pay", "within", "12", "hours", "…"];
+const PATCH_COLORS = ["var(--t-score)", "var(--bad)", "var(--mid)", "var(--good)", "var(--t-noul)", "var(--t-choice)"];
+const RAW = [["delivery", 7.9], ["promotion", 1.7], ["bank", 1.4], ["friend", -0.2]];
+const PIPE = [
+  { t: "Input arrives", tag: "ok",
+    d: "The request carries your input as blocks. Here it is one text message. Images, audio, video and PDFs arrive the same way, each as a block with its data and type.",
+    v: () => `<div class="input-label">input[0] · text</div>
+      <p class="sms">Hi! Your parcel could not be delivered because of an unpaid customs fee of $1.99. Pay within 12 hours or it will be sent back: http://parcel-redelivery-help.co/pay</p>
+      <div class="mods"><span class="mod">image</span><span class="mod">audio</span><span class="mod">video</span><span class="mod">document</span></div>` },
+  { t: "Everything becomes tokens", tag: "ok",
+    d: "Text is cut into tokens, small pieces of words. Images become patches and audio becomes short slices. Google says the model is built on Gemini's native multimodal architecture and needs no separate transcription step, so every kind of input goes into the same model.",
+    v: () => `<div class="input-label">Text tokens</div>
+      <div class="toks">${SCAM_TOKENS.map((t, k) => `<span class="tok" style="animation-delay:${k * 35}ms">${esc(t)}</span>`).join("")}</div>
+      <div class="v-row">
+        <div><div class="input-label">Image patches</div><div class="patches">${Array.from({ length: 24 }, (_, k) => `<i style="background:${PATCH_COLORS[(k * 7 + (k >> 2)) % 6]};opacity:${0.35 + ((k * 37) % 60) / 100};animation-delay:${k * 25}ms"></i>`).join("")}</div></div>
+        <div><div class="input-label">Audio slices</div><div class="wave">${Array.from({ length: 30 }, (_, k) => `<i style="height:${Math.round(6 + 30 * Math.abs(Math.sin(k * 0.55) * Math.cos(k * 0.17)))}px"></i>`).join("")}</div></div>
+      </div>` },
+  { t: "The input is read once", tag: "simp",
+    d: "In one forward pass, the tokens flow up through the network's layers. At each layer every token can look at every other token. By the top, the model holds a picture of what the whole message means: a small fee, a short deadline and a strange link.",
+    v: () => `<div class="meaning"><span>small fee</span><span>12-hour deadline</span><span>unfamiliar link</span></div>
+      <div class="layers">${["Layer N", "…", "Layer 3", "Layer 2", "Layer 1"].map((l, r) => `<div class="layer"><span>${l}</span><div class="dots">${Array.from({ length: 14 }, () => `<i style="animation-delay:${(4 - r) * 0.3}s"></i>`).join("")}</div></div>`).join("")}</div>
+      <p class="note">Tokens enter at the bottom. One pass carries them to the top.</p>` },
+  { t: "Questions join the same pass", tag: "ok",
+    d: "Each question adds only its own instruction and options. Google's docs say every question runs against the shared input in one forward pass, and questions can't see each other. One answer never sways another.",
+    v: () => `<div class="branch">
+      <div class="src">Shared input · read once</div>
+      <div class="qs">
+        <div class="q"><span class="k">is_scam</span><span class="chip noul">Yes / No</span></div>
+        <div class="q"><span class="k">message_type</span><span class="chip choice">Multiple choice</span></div>
+        <div class="q"><span class="k">risk_level</span><span class="chip score">Rubric score</span></div>
+      </div>
+      <p class="wall">questions read the input, not each other</p></div>` },
+  { t: "Every option gets a score", tag: "simp",
+    d: "Still inside that one pass, the model gives each option a raw score for how well it fits the input and the question. Nothing is written out, so there are no output tokens to generate or pay for.",
+    v: () => `<div class="input-label">message_type · raw scores</div>
+      <div class="raw probs">${RAW.map(([k, s], i) => `<div class="pb${i === 0 ? " sel" : ""}"><span class="lbl">${k}</span><div class="track"><div class="fill" data-w="${((s + 2) / 12 * 100).toFixed(1)}"></div></div><span class="v">${s.toFixed(2)}</span></div>`).join("")}</div>
+      <p class="note">Illustrative raw scores, chosen so they produce the real probabilities in the next step.</p>` },
+  { t: "Scores become probabilities", tag: "ok",
+    d: "The scores are turned into calibrated probabilities that add up to 1. The API returns the pick, its confidence and every probability. These are the real numbers for message_type.",
+    v: () => `<div class="input-label">message_type · real response</div>
+      ${probRows([["delivery", 0.9964, true], ["promotion", 0.0019, false], ["bank", 0.0014, false], ["friend", 0.0003, false]])}
+      <div class="json-mini">"choice": "delivery", "confidence": 0.9964</div>` },
+];
+let pipeI = 0, pipeTimer = null;
+$("#pipe-rail").innerHTML = PIPE.map((s, k) => `<li><button type="button" data-pipe="${k}"><span class="n">Step ${k + 1}</span><span class="t">${s.t}</span><span class="bar"><i></i></span></button></li>`).join("");
+function showPipe(i) {
+  pipeI = i;
+  $$("#pipe-rail button").forEach((b, k) => {
+    b.classList.toggle("on", k === i); b.classList.toggle("done", k < i);
+    b.setAttribute("aria-current", k === i ? "step" : "false");
+  });
+  const s = PIPE[i];
+  $("#pipe-detail").innerHTML = `<div class="stack" style="gap:12px">
+      <div class="field-row"><span class="tag ${s.tag}">${s.tag === "ok" ? "Confirmed" : "Simplified"}</span><span class="note">Step ${i + 1} of ${PIPE.length}</span></div>
+      <h4>${s.t}</h4><p>${s.d}</p></div>
+    <div class="vis">${s.v()}</div>`;
+  growBars($("#pipe-detail"));
+}
+function stopPipe() { clearInterval(pipeTimer); pipeTimer = null; $("#pipe-play").textContent = "Play"; }
+$("#pipe-rail").addEventListener("click", e => { const b = e.target.closest("[data-pipe]"); if (b) { stopPipe(); showPipe(+b.dataset.pipe); } });
+$("#pipe-prev").addEventListener("click", () => { stopPipe(); showPipe(Math.max(0, pipeI - 1)); });
+$("#pipe-next").addEventListener("click", () => { stopPipe(); showPipe(Math.min(PIPE.length - 1, pipeI + 1)); });
+$("#pipe-play").addEventListener("click", () => {
+  if (pipeTimer) { stopPipe(); return; }
+  if (pipeI === PIPE.length - 1) showPipe(0);
+  $("#pipe-play").textContent = "Pause";
+  pipeTimer = setInterval(() => { if (pipeI >= PIPE.length - 1) { stopPipe(); return; } showPipe(pipeI + 1); }, 3600);
+});
+showPipe(0);
+
+/* ============ developer zone: forward pass race ============ */
+const RACE_WORDS = "Yes. This message looks like a scam. It asks for a small customs fee, gives you only 12 hours and links to a site that is not the courier's own. Do not click the link. Contact the courier through its official website instead, and delete the message.".split(" ");
+const raceWords = k => {
+  const w = []; for (let i = 0; i < k; i++) w.push(RACE_WORDS[i % RACE_WORDS.length]);
+  const s = w.join(" ");
+  return s.length > 200 ? s.slice(0, 200) + "…" : s;
+};
+let raceTimer = null;
+function raceDraw(filled, decDone) {
+  const n = +$("#race-len").value;
+  $("#race-gen").innerHTML = `<i class="pre${filled > 0 ? " f" : ""}" title="Read the input"></i>` + Array.from({ length: n }, (_, k) => `<i class="${k + 1 < filled ? "f" : ""}"></i>`).join("");
+  $("#race-dec").innerHTML = `<i class="pre${decDone ? " f" : ""}" title="Read the input and score every option"></i>`;
+  $("#race-gen-n").textContent = Math.min(filled, n + 1);
+  $("#race-gen-o").textContent = Math.max(0, Math.min(filled - 1, n));
+  $("#race-dec-n").textContent = decDone ? 1 : 0;
+  $("#race-gen-text").textContent = filled > 1 ? raceWords(Math.min(filled - 1, n)) : filled === 1 ? "Reading the input…" : "";
+  $("#race-dec-text").textContent = decDone ? "is_scam → Yes · 0.99   (done)" : "";
+}
+function raceStatic() {
+  clearInterval(raceTimer); raceTimer = null; $("#race-play").textContent = "Play";
+  const n = +$("#race-len").value;
+  $("#race-len-out").textContent = n + (n === 1 ? " token" : " tokens");
+  raceDraw(n + 1, true);
+}
+$("#race-len").addEventListener("input", raceStatic);
+$("#race-play").addEventListener("click", () => {
+  if (raceTimer) { raceStatic(); return; }
+  const n = +$("#race-len").value;
+  if (reduceMotion()) { raceDraw(n + 1, true); return; }
+  let f = 0;
+  raceDraw(0, false);
+  $("#race-play").textContent = "Stop";
+  const tick = Math.max(12, Math.min(110, 3200 / (n + 1)));
+  raceTimer = setInterval(() => {
+    f++;
+    raceDraw(f, true);
+    if (f >= n + 1) { clearInterval(raceTimer); raceTimer = null; $("#race-play").textContent = "Play"; }
+  }, tick);
+});
+raceStatic();
+
+/* ============ developer zone: shared input ============ */
+let shareIn = 532;
+const fmtN = v => Math.round(v).toLocaleString("en-US");
+function share() {
+  const n = +$("#share-q").value, Q = 100, A = 10;
+  const genIn = n * (shareIn + Q), genOut = n * A, gen = genIn + genOut, dec = shareIn + n * Q;
+  $("#share-q-out").textContent = n;
+  $("#share-gen").textContent = fmtN(gen) + " tokens";
+  $("#share-dec").textContent = fmtN(dec) + " tokens";
+  $("#share-gen-bar").style.width = "100%";
+  $("#share-dec-bar").style.width = Math.max(1, dec / gen * 100) + "%";
+  $("#share-gen-sub").textContent = `${n} request${n === 1 ? "" : "s"} · input read ${n} time${n === 1 ? "" : "s"} · ${fmtN(genOut)} output tokens`;
+  $("#share-dec-sub").textContent = `1 request · input read once · ${fmtN(n * Q)} for the questions · 0 output tokens`;
+  const r = gen / dec;
+  $("#share-ratio").innerHTML = r < 1.15
+    ? `About the same for one question. The gap grows with every question you add.`
+    : `The Decisions API processes <b>${r.toFixed(1)}×</b> fewer tokens for this job.`;
+}
+$$("[data-in]").forEach(b => b.addEventListener("click", () => {
+  shareIn = +b.dataset.in;
+  $$("[data-in]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  share();
+}));
+$("#share-q").addEventListener("input", share);
+share();
+
+/* ============ developer zone: softmax lab ============ */
+$("#sm-sliders").innerHTML = RAW.map(([k, s], i) => `
+  <div class="slider"><label class="lv" for="sm-${i}"><span class="t mono">${k}</span></label>
+  <input type="range" id="sm-${i}" min="-2" max="10" step="0.1" value="${s}"><output id="smo-${i}" for="sm-${i}">${s.toFixed(1)}</output></div>`).join("");
+function softmax() {
+  const s = RAW.map((_, i) => +$("#sm-" + i).value);
+  const m = Math.max(...s);
+  const e = s.map(v => Math.exp(v - m));
+  const sum = e.reduce((a, b) => a + b, 0);
+  const p = e.map(v => v / sum);
+  let top = 0; p.forEach((v, i) => { if (v > p[top]) top = i; });
+  s.forEach((v, i) => ($("#smo-" + i).textContent = v.toFixed(1)));
+  $("#sm-pick").textContent = RAW[top][0];
+  $("#sm-conf").textContent = pct(p[top]);
+  const rows = RAW.map(([k], i) => [k, p[i], i === top]).sort((a, b) => b[1] - a[1]);
+  $("#sm-probs").innerHTML = probRows(rows);
+  $$("#sm-probs .fill[data-w]").forEach(f => (f.style.width = f.dataset.w + "%"));
+  $("#sm-formula").innerHTML = `p(${RAW[top][0]}) = e<sup>${s[top].toFixed(1)}</sup> ÷ (${s.map(v => `e<sup>${v.toFixed(1)}</sup>`).join(" + ")}) = <b>${pct(p[top])}</b>`;
+}
+$$("#sm-sliders input").forEach(r => r.addEventListener("input", softmax));
+$("#sm-reset").addEventListener("click", () => { RAW.forEach(([, s], i) => ($("#sm-" + i).value = s)); softmax(); });
+softmax();
+
+/* ============ developer zone: reliability chart ============ */
+const CAL_BINS = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95];
+const CAL = {
+  cal: { acc: [0.06, 0.13, 0.27, 0.34, 0.46, 0.53, 0.66, 0.77, 0.84, 0.95],
+    text: "The dots sit on the diagonal. When this model says 80%, it is right about 80% of the time, so you can set thresholds you can trust." },
+  over: { acc: CAL_BINS.map(c => 0.5 + (c - 0.5) * 0.55),
+    text: "Overconfident: when it says 95%, it is right only about 75% of the time. Thresholds set on its numbers let too many mistakes through." },
+  under: { acc: CAL_BINS.map(c => Math.min(0.99, Math.max(0.01, 0.5 + (c - 0.5) * 1.5))),
+    text: "Underconfident: it is right more often than it claims. You end up sending good answers for review that did not need it." },
+};
+function drawCal(mode) {
+  const W = 340, L = 48, R = 326, T = 14, B = 250, pw = R - L, ph = B - T;
+  const X = c => L + c * pw, Y = a => B - a * ph;
+  const acc = CAL[mode].acc;
+  let g = "";
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+    g += `<line class="gridl" x1="${X(0)}" y1="${Y(v)}" x2="${X(1)}" y2="${Y(v)}"/><line class="gridl" x1="${X(v)}" y1="${Y(0)}" x2="${X(v)}" y2="${Y(1)}"/>`;
+  });
+  [0, 0.5, 1].forEach(v => {
+    g += `<text x="${X(v)}" y="${B + 16}" text-anchor="middle">${v * 100}%</text><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v * 100}%</text>`;
+  });
+  g += `<text x="${(L + R) / 2}" y="296" text-anchor="middle">Model confidence</text>`;
+  g += `<text transform="translate(12 ${(T + B) / 2}) rotate(-90)" text-anchor="middle">How often it was right</text>`;
+  g += `<line class="diag" x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}"/>`;
+  CAL_BINS.forEach((c, i) => { g += `<line class="gap" x1="${X(c)}" y1="${Y(c)}" x2="${X(c)}" y2="${Y(acc[i])}"/>`; });
+  g += `<polyline class="curve" points="${CAL_BINS.map((c, i) => `${X(c).toFixed(1)},${Y(acc[i]).toFixed(1)}`).join(" ")}"/>`;
+  CAL_BINS.forEach((c, i) => { g += `<circle class="pt" cx="${X(c).toFixed(1)}" cy="${Y(acc[i]).toFixed(1)}" r="4.5"/>`; });
+  $("#cal-svg").innerHTML = g;
+  const err = CAL_BINS.reduce((a, c, i) => a + Math.abs(acc[i] - c), 0) / CAL_BINS.length * 100;
+  $("#cal-err").textContent = err.toFixed(1) + " points";
+  $("#cal-err").style.color = err < 3 ? "var(--good)" : "var(--bad)";
+  $("#cal-text").textContent = CAL[mode].text;
+}
+$$("[data-cal]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-cal]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  drawCal(b.dataset.cal);
+}));
+drawCal("cal");
+
 /* ============ contents scrollspy ============ */
 (function spy() {
-  const links = $$("#toc a, #toc-mobile a");
+  const links = $$("#toc a, #toc-mobile a, #dz-nav a");
   const set = id => links.forEach(a => {
-    const on = a.getAttribute("href") === "#" + id;
+    const href = a.getAttribute("href");
+    const inDev = id === "developers" || id.startsWith("dev-");
+    const on = href === "#" + id || (href === "#developers" && inDev && !a.closest("#dz-nav") && (a.closest("#toc-mobile") || id === "developers"));
     a.classList.toggle("on", on);
     if (on && a.closest("#toc-mobile")) {
       const nav = $("#toc-mobile");
@@ -2235,7 +2884,7 @@ renderGloss();
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) set(e.target.id); });
   }, { rootMargin: "-30% 0px -60% 0px" });
-  $$("section.sec").forEach(s => io.observe(s));
+  $$("section.sec, [data-spy]").forEach(s => io.observe(s));
   set("start");
 })();
 </script>
