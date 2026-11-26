@@ -1,0 +1,2243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gemini Decisions Guide</title>
+<meta name="description" content="A friendly, interactive guide to decision models, the Gemini Decisions API, the gemini-decision-1 model, its three decision types and the Gemini Decisions Playground, built on real model outputs.">
+<meta property="og:title" content="Gemini Decisions Guide">
+<meta property="og:description" content="Decision models, the Gemini Decisions API and its three decision types, explained with real outputs, use cases and an open playground.">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#4F46E5">
+<script>
+  // Apply a saved theme before first paint, so the page never flashes the wrong colours.
+  try { var t = localStorage.getItem("gdg-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
+<style>
+/* Layout: field guide. Sticky, grouped contents rail on the left, one reading column, wide interactive "instrument" panels as the only carded objects. Palette and type follow the playground app. */
+:root {
+  --bg: #FBFBFE;
+  --surface: #FFFFFF;
+  --surface-2: #F4F5FA;
+  --line: #E3E5EE;
+  --line-strong: #CDD1E0;
+  --fg: #1E2230;
+  --muted: #5B6175;
+  --faint: #7D8399;
+  --accent: #4F46E5;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #EEF0FF;
+  --t-noul: #2563EB;
+  --t-noul-soft: #E8F0FE;
+  --t-choice: #7C3AED;
+  --t-choice-soft: #F2ECFE;
+  --t-score: #B45309;
+  --t-score-soft: #FEF3E2;
+  --good: #047857;
+  --good-soft: #E3F6EE;
+  --bad: #C2261D;
+  --bad-soft: #FDECEA;
+  --mid: #B45309;
+  --meter: #0D9488;
+  --code-bg: #F6F7FB;
+  --code-fg: #2A2F45;
+  --code-key: #4338CA;
+  --code-str: #047857;
+  --code-num: #B45309;
+  --code-com: #7D8399;
+  --hl: #FFF3C4;
+  --hl-line: #E8B500;
+  --shadow: 0 1px 2px rgba(30, 34, 48, .05), 0 8px 24px -12px rgba(30, 34, 48, .14);
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1117; --surface: #171A23; --surface-2: #1D2130; --line: #2A2E3B; --line-strong: #3A3F51;
+    --fg: #E7E9F0; --muted: #A2A8BC; --faint: #858BA1;
+    --accent: #8B93F8; --accent-ink: #11132A; --accent-soft: #22254A;
+    --t-noul: #6EA8FE; --t-noul-soft: #182640; --t-choice: #B49AFB; --t-choice-soft: #251C40;
+    --t-score: #F5B94A; --t-score-soft: #33260F;
+    --good: #3FD4A0; --good-soft: #0F2E24; --bad: #FF8A80; --bad-soft: #3A1A18; --mid: #F5B94A; --meter: #2DD4BF;
+    --code-bg: #131620; --code-fg: #D5D9E6; --code-key: #A5B4FC; --code-str: #6EE7B7; --code-num: #FCD34D; --code-com: #858BA1;
+    --hl: #3B3313; --hl-line: #E8B500;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1117; --surface: #171A23; --surface-2: #1D2130; --line: #2A2E3B; --line-strong: #3A3F51;
+  --fg: #E7E9F0; --muted: #A2A8BC; --faint: #858BA1;
+  --accent: #8B93F8; --accent-ink: #11132A; --accent-soft: #22254A;
+  --t-noul: #6EA8FE; --t-noul-soft: #182640; --t-choice: #B49AFB; --t-choice-soft: #251C40;
+  --t-score: #F5B94A; --t-score-soft: #33260F;
+  --good: #3FD4A0; --good-soft: #0F2E24; --bad: #FF8A80; --bad-soft: #3A1A18; --mid: #F5B94A; --meter: #2DD4BF;
+  --code-bg: #131620; --code-fg: #D5D9E6; --code-key: #A5B4FC; --code-str: #6EE7B7; --code-num: #FCD34D; --code-com: #858BA1;
+  --hl: #3B3313; --hl-line: #E8B500;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px); }
+@media (min-width: 1080px) { html { scroll-padding-top: 24px; } }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.65;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.2; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+code, .mono { font-family: var(--font-mono); font-size: .88em; }
+:not(pre) > code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: .05em .35em; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.tnum { font-variant-numeric: tabular-nums; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 8px 14px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 12px; }
+
+/* ---------- shell ---------- */
+.shell {
+  display: grid; grid-template-columns: 1fr; gap: 0;
+  max-width: 1280px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 1080px) {
+  .shell { grid-template-columns: 228px minmax(0, 1fr); gap: 56px; padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); }
+}
+
+/* contents rail */
+.rail { display: none; }
+@media (min-width: 1080px) {
+  .rail { display: block; position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; padding-block: 28px 32px; max-height: 100vh; overflow-y: auto; scrollbar-width: thin; }
+}
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 15px; margin-bottom: 18px; color: var(--fg); text-decoration: none; }
+.brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; flex: none; }
+.brand-mark svg { width: 16px; height: 16px; }
+.rail-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 16px 0 6px 10px; }
+.rail-label:first-of-type { margin-top: 4px; }
+.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.rail ol a { display: flex; gap: 8px; align-items: center; padding: 5px 10px; border-radius: 7px; color: var(--muted); text-decoration: none; font-size: 14px; line-height: 1.35; }
+.rail ol a:hover { color: var(--fg); background: var(--surface-2); }
+.rail ol a.on { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.rail ol .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.rail-foot { margin-top: 20px; display: grid; gap: 8px; }
+.rail-foot .btn-primary { justify-content: center; }
+
+.theme-btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+.theme-btn:hover { color: var(--fg); border-color: var(--accent); }
+.theme-btn svg { width: 15px; height: 15px; }
+
+/* mobile contents bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); display: flex; align-items: center; }
+@media (min-width: 1080px) { .topbar { display: none; } }
+.topbar nav { display: flex; gap: 6px; overflow-x: auto; padding: 10px 8px 10px max(16px, env(safe-area-inset-left, 0px)); scrollbar-width: none; flex: 1; min-width: 0; }
+.topbar nav::-webkit-scrollbar { display: none; }
+.topbar nav a { flex: none; font-size: 13px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); text-decoration: none; background: var(--surface); }
+.topbar nav a.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.topbar .theme-btn { margin-right: max(16px, env(safe-area-inset-right, 0px)); flex: none; padding: 6px 8px; }
+.topbar .theme-btn span { display: none; }
+
+main { min-width: 0; padding-block: 8px 80px; }
+
+/* ---------- sections ---------- */
+section.sec { padding-block: 56px 8px; border-top: 1px solid var(--line); margin-top: 48px; }
+section.sec.first { border-top: 0; margin-top: 0; padding-top: 0; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.sec h2 { font-size: clamp(26px, 3.2vw, 34px); font-weight: 800; margin-bottom: 14px; }
+.sec h3 { font-size: 20px; font-weight: 700; }
+.sub-h { margin: 40px 0 12px; }
+.lede { font-size: 18px; color: var(--muted); max-width: 66ch; }
+.prose { max-width: 68ch; display: grid; gap: 14px; }
+.stack { display: grid; gap: 28px; }
+.mt-l { margin-top: 32px; }
+.mt-m { margin-top: 20px; }
+.note { font-size: 13px; color: var(--faint); }
+.muted { color: var(--muted); }
+
+/* ---------- buttons, chips ---------- */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid transparent; cursor: pointer; line-height: 1.2; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: var(--surface); color: var(--fg); border-color: var(--line-strong); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.btn-sm { padding: 7px 12px; font-size: 13.5px; border-radius: 8px; }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; line-height: 1.4; white-space: nowrap; }
+.chip.noul { color: var(--t-noul); background: var(--t-noul-soft); }
+.chip.choice { color: var(--t-choice); background: var(--t-choice-soft); }
+.chip.score { color: var(--t-score); background: var(--t-score-soft); }
+.chip.plain { color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); }
+.chip.none { color: var(--bad); background: var(--bad-soft); }
+
+.seg { display: inline-flex; padding: 3px; gap: 3px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 7px 13px; border-radius: 7px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; display: inline-flex; gap: 7px; align-items: center; }
+.seg button:hover { color: var(--fg); }
+.seg button[aria-selected="true"], .seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px var(--line); }
+.seg .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.panel-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.panel-title { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+.panel-body { padding: 18px; }
+
+/* ---------- hero ---------- */
+.hero { padding-block: 44px 24px; display: grid; gap: 36px; align-items: center; }
+@media (min-width: 960px) { .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: 44px; padding-block: 60px 28px; } }
+.hero h1 { font-size: clamp(34px, 4.4vw, 50px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; }
+.hero h1 .soft { color: var(--muted); display: block; }
+.hero .lede { margin-top: 18px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.hero-facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 26px; font-size: 13.5px; color: var(--muted); }
+.hero-facts b { color: var(--fg); font-weight: 600; }
+
+.instrument .input-zone { padding: 16px 18px; border-bottom: 1px dashed var(--line-strong); display: grid; gap: 10px; }
+.sms { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 12px 14px; font-size: 14.5px; line-height: 1.5; max-width: 46ch; overflow-wrap: anywhere; }
+.sms mark { background: var(--hl); color: inherit; border-bottom: 2px solid var(--hl-line); padding: 0 1px; }
+.photo-in { display: flex; gap: 14px; align-items: center; }
+.photo-in img { width: 132px; aspect-ratio: 3/2; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+.photo-in .meta { font-size: 13.5px; color: var(--muted); display: grid; gap: 4px; }
+.input-label { font-size: 12px; color: var(--faint); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: flex; gap: 8px; align-items: center; }
+.ans { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); align-items: center; }
+.ans:last-child { border-bottom: 0; }
+.ans-q { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.ans-q .k { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+.ans-instr { grid-column: 1 / -1; font-size: 13.5px; color: var(--muted); }
+.ans-val { font-family: var(--font-display); font-weight: 800; font-size: 22px; text-align: right; white-space: nowrap; }
+.ans-val.yes { color: var(--good); } .ans-val.no { color: var(--bad); }
+.ans-val.pick { color: var(--t-choice); font-family: var(--font-mono); font-size: 18px; }
+.ans-val.sc { color: var(--t-score); }
+.ans-val small { font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--muted); }
+.ans-meter { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.track { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--line); }
+.fill { height: 100%; border-radius: 99px; background: var(--meter); width: 0; transition: width .7s cubic-bezier(.2,.8,.2,1); }
+.fill.mid { background: var(--mid); } .fill.low { background: var(--bad); }
+.instrument-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 12px 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); background: var(--surface-2); border-radius: 0 0 var(--radius) var(--radius); }
+.instrument-foot b { color: var(--fg); font-weight: 600; }
+
+/* ---------- compare ---------- */
+.compare-stage { display: grid; gap: 16px; padding: 18px; }
+@media (min-width: 760px) { .compare-stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.q-bubble { font-size: 14.5px; background: var(--accent-soft); color: var(--fg); padding: 10px 14px; border-radius: 14px 14px 4px 14px; justify-self: end; max-width: 40ch; }
+.side { display: grid; gap: 10px; align-content: start; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); min-width: 0; transition: opacity .3s, border-color .3s; }
+.side.dim { opacity: .5; }
+.side.lit { border-color: var(--accent); background: var(--surface); }
+.side h4 { font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.gen-text { font-size: 14px; min-height: 7.5em; }
+.gen-text .caret { display: inline-block; width: 7px; height: 1em; background: var(--muted); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.mini-probs, .probs { display: grid; gap: 7px; }
+.pb { display: grid; grid-template-columns: minmax(64px, 32%) minmax(0, 1fr) 54px; gap: 10px; align-items: center; font-size: 13.5px; }
+.pb .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pb .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+.pb .track { height: 8px; }
+.pb.sel .lbl { font-weight: 700; }
+.pb.sel .v { color: var(--fg); font-weight: 600; }
+.pb .fill { background: var(--line-strong); }
+.pb.sel .fill { background: var(--accent); }
+.json-mini { font-family: var(--font-mono); font-size: 12.5px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--code-fg); overflow-x: auto; white-space: pre; }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 14.5px; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td, tr:last-child th { border-bottom: 0; }
+thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 600; background: var(--surface-2); white-space: nowrap; }
+tbody th { font-weight: 600; color: var(--muted); width: 22%; }
+td.hi { color: var(--fg); background: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+.yesno-cell { font-weight: 600; }
+.yesno-cell.y { color: var(--good); } .yesno-cell.n { color: var(--bad); }
+
+/* ---------- flow ---------- */
+.flow { display: grid; gap: 12px; align-items: stretch; }
+@media (min-width: 820px) { .flow { grid-template-columns: minmax(0,1fr) 28px minmax(0,1.15fr) 28px minmax(0,1fr); } }
+.flow-col { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.flow-col h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-family: var(--font-body); font-weight: 600; }
+.flow-col > p { font-size: 14px; color: var(--muted); }
+.flow-arrow { display: grid; place-items: center; color: var(--faint); }
+.flow-arrow svg { width: 22px; height: 22px; }
+@media (max-width: 819px) { .flow-arrow svg { transform: rotate(90deg); } }
+.mods { display: flex; flex-wrap: wrap; gap: 6px; }
+.mod { font-size: 13px; padding: 4px 10px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); display: inline-flex; gap: 6px; align-items: center; }
+.mod svg { width: 14px; height: 14px; color: var(--muted); }
+.qrow, .arow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13.5px; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); }
+.arow { justify-content: space-between; align-items: baseline; }
+.qrow .k, .arow .k { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
+.arow .k { color: var(--muted); font-weight: 500; }
+.arow b { font-family: var(--font-display); }
+
+/* ---------- anatomy ---------- */
+.anat { display: grid; }
+@media (min-width: 900px) { .anat { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
+.anat-code { border-bottom: 1px solid var(--line); min-width: 0; }
+@media (min-width: 900px) { .anat-code { border-bottom: 0; border-right: 1px solid var(--line); } }
+pre.code { margin: 0; padding: 16px 18px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--code-fg); background: var(--code-bg); overflow-x: auto; tab-size: 2; }
+.anat pre.code { min-height: 100%; }
+@media (min-width: 900px) { .anat pre.code { border-radius: 0 0 0 var(--radius); } }
+.c-k { color: var(--code-key); } .c-s { color: var(--code-str); } .c-n { color: var(--code-num); } .c-c { color: var(--code-com); font-style: italic; }
+.part { border-radius: 4px; transition: background .2s, box-shadow .2s; }
+.part.on { background: var(--hl); box-shadow: 0 0 0 2px var(--hl); }
+.anat-list { list-style: none; margin: 0; padding: 10px; display: grid; gap: 2px; align-content: start; }
+.anat-list button { width: 100%; text-align: left; background: transparent; border: 1px solid transparent; border-radius: 9px; padding: 10px 12px; cursor: pointer; display: grid; gap: 3px; }
+.anat-list button:hover { background: var(--surface-2); }
+.anat-list button.on { background: var(--surface-2); border-color: var(--line-strong); }
+.anat-list .nm { font-family: var(--font-mono); font-size: 13px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.anat-list .nm .sw { width: 10px; height: 10px; border-radius: 3px; background: var(--hl); border: 1px solid var(--hl-line); flex: none; opacity: 0; }
+.anat-list button.on .sw { opacity: 1; }
+.anat-list .ds { font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+/* ---------- facts & calc ---------- */
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+@media (min-width: 720px) { .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.fact { background: var(--surface); padding: 18px; display: grid; gap: 4px; align-content: start; }
+.fact .big { font-family: var(--font-display); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.fact .big small { font-size: 15px; font-weight: 700; color: var(--muted); }
+.fact .what { font-size: 14px; font-weight: 600; }
+.fact .why { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.split { display: grid; gap: 18px; }
+@media (min-width: 820px) { .split { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; } }
+.split.top { align-items: start; }
+.field { display: grid; gap: 7px; }
+.field label, .field .lab { font-size: 13px; font-weight: 600; color: var(--muted); }
+.field-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+input[type="number"], input[type="search"] { font: inherit; font-size: 15px; color: var(--fg); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 9px; padding: 8px 12px; width: 100%; max-width: 220px; font-variant-numeric: tabular-nums; }
+input[type="search"] { max-width: 100%; }
+.calc-out { border-radius: var(--radius-sm); background: var(--accent-soft); padding: 18px 20px; display: grid; gap: 4px; }
+.calc-out .big { font-family: var(--font-display); font-weight: 800; font-size: 36px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.calc-out .sub { font-size: 13.5px; color: var(--muted); }
+
+/* ---------- type explorer ---------- */
+.tabs-row { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.tp { display: grid; gap: 22px; padding: 20px; }
+@media (min-width: 980px) { .tp { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; } }
+.tp-left, .tp-right { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.tp-left h3 { font-size: 22px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.kv { display: grid; gap: 12px; margin: 0; }
+.kv div { display: grid; gap: 2px; }
+.kv dt { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 600; }
+.kv dd { margin: 0; font-size: 15px; }
+.ctx { font-size: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.ctx .input-label { margin-bottom: 4px; }
+
+.rcard { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 16px 18px; display: grid; gap: 12px; box-shadow: var(--shadow); }
+.rcard-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.rcard-head .k { font-family: var(--font-mono); font-weight: 600; font-size: 14px; }
+.rcard .instr { font-size: 14px; color: var(--muted); }
+.verdict { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1.05; letter-spacing: -0.02em; }
+.verdict.yes { color: var(--good); } .verdict.no { color: var(--bad); }
+.verdict.pick { color: var(--t-choice); font-family: var(--font-mono); font-size: 28px; letter-spacing: 0; }
+.verdict.sc { color: var(--t-score); }
+.verdict small { font-size: 16px; color: var(--muted); font-weight: 600; }
+.verdict-sub { font-size: 13.5px; color: var(--muted); margin-top: -4px; }
+.conf { display: grid; gap: 6px; }
+.conf-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.conf-top b { font-weight: 600; }
+.conf-top b.high { color: var(--good); } .conf-top b.mid { color: var(--mid); } .conf-top b.low { color: var(--bad); }
+.probs-title { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 600; }
+.scale { position: relative; height: 10px; border-radius: 99px; background: linear-gradient(90deg, var(--bad), var(--mid) 50%, var(--good)); margin: 14px 0 4px; }
+.scale .pin { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 3px solid var(--fg); transform: translate(-50%, -50%); transition: left .5s cubic-bezier(.2,.8,.2,1); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.scale-ticks { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.kpis { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
+.kpis b { color: var(--fg); font-weight: 600; }
+
+/* ---------- video ---------- */
+.vcard { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 14px; align-items: center; text-decoration: none; color: inherit; border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; background: var(--surface); transition: border-color .2s; }
+.vcard:hover { border-color: var(--accent); }
+.vthumb { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9; background: var(--surface-2); display: block; }
+.vthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vthumb .play { position: absolute; inset: 0; display: grid; place-items: center; }
+.vthumb .play span { width: 34px; height: 34px; border-radius: 50%; background: rgba(15, 17, 23, .72); display: grid; place-items: center; transition: transform .2s, background .2s; }
+.vthumb .play svg { width: 14px; height: 14px; fill: #fff; margin-left: 2px; }
+.vthumb .dur { position: absolute; right: 6px; bottom: 6px; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 4px; background: rgba(15, 17, 23, .8); color: #fff; font-variant-numeric: tabular-nums; }
+.vcard .vt { font-weight: 600; font-size: 14.5px; line-height: 1.35; display: block; }
+.vcard .vs { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-top: 3px; }
+.vcard .vs svg { width: 13px; height: 13px; }
+.yt { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.yt-frame { position: relative; aspect-ratio: 16/9; background: #000; }
+.yt-frame button { all: unset; cursor: pointer; position: absolute; inset: 0; display: block; }
+.yt-frame button:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.yt-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.yt-frame .play { position: absolute; inset: 0; display: grid; place-items: center; }
+.yt-frame .play span { width: 64px; height: 64px; border-radius: 50%; background: rgba(15, 17, 23, .75); display: grid; place-items: center; transition: transform .2s, background .2s; }
+.yt-frame button:hover .play span { transform: scale(1.06); background: var(--accent); }
+.yt-frame .play svg { width: 24px; height: 24px; fill: #fff; margin-left: 3px; }
+.yt-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.yt-info { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 10px 14px; flex-wrap: wrap; }
+.yt-info .vt { font-weight: 600; font-size: 14.5px; }
+.yt-info a { font-size: 13px; display: inline-flex; gap: 5px; align-items: center; }
+.yt-info a svg { width: 13px; height: 13px; }
+
+/* ---------- deep dives ---------- */
+.dd-head { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.dd-head h2 { margin: 0; }
+.glance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-top: 26px; }
+@media (min-width: 820px) { .glance { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.glance div { background: var(--surface); padding: 14px 16px; display: grid; gap: 3px; align-content: start; }
+.glance dt { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 600; }
+.glance dd { margin: 0; font-size: 14.5px; font-weight: 500; }
+.glance.noul { border-top: 3px solid var(--t-noul); }
+.glance.choice { border-top: 3px solid var(--t-choice); }
+.glance.score { border-top: 3px solid var(--t-score); }
+.two { display: grid; gap: 16px; }
+@media (min-width: 760px) { .two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.listbox { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.listbox h4 { font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.listbox h4 svg { width: 18px; height: 18px; flex: none; }
+.listbox ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.listbox li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; font-size: 14.5px; line-height: 1.55; }
+.listbox li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; margin-top: .55em; justify-self: center; background: var(--line-strong); }
+.listbox.pro h4 svg { color: var(--good); } .listbox.pro li::before { background: var(--good); }
+.listbox.con h4 svg { color: var(--bad); } .listbox.con li::before { background: var(--bad); }
+.listbox.use h4 svg { color: var(--accent); } .listbox.use li::before { background: var(--accent); }
+.listbox.avoid h4 svg { color: var(--faint); }
+.listbox li b { font-weight: 600; }
+.steps { counter-reset: s; display: grid; gap: 12px; max-width: 70ch; padding: 0; margin: 0; list-style: none; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; font-size: 15px; }
+.steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; display: grid; place-items: center; font-family: var(--font-display); }
+.uc-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+.uc { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 16px; display: grid; gap: 9px; align-content: start; }
+.uc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.uc-dom { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.uc h4 { font-size: 15.5px; line-height: 1.35; }
+.uc .crit { font-size: 13px; color: var(--muted); font-family: var(--font-mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; line-height: 1.55; overflow-wrap: anywhere; }
+.uc .act { font-size: 13.5px; color: var(--fg); display: flex; gap: 8px; align-items: baseline; }
+.uc .act::before { content: "Then"; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); flex: none; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 16px; border-radius: 0 10px 10px 0; font-size: 15px; max-width: 72ch; }
+.callout b { font-weight: 700; }
+.mistakes { display: grid; gap: 10px; }
+.mistake { display: grid; gap: 6px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+@media (min-width: 760px) { .mistake { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 14px; align-items: start; } }
+.mistake .bad, .mistake .good { font-size: 13.5px; padding: 7px 10px; border-radius: 7px; font-family: var(--font-mono); overflow-wrap: anywhere; }
+.mistake .bad { background: var(--bad-soft); }
+.mistake .good { background: var(--good-soft); }
+.mistake .why { font-size: 14px; color: var(--muted); }
+.mistake .lbl { display: block; font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
+.mistake .bad .lbl { color: var(--bad); } .mistake .good .lbl { color: var(--good); }
+.dists { display: grid; gap: 14px; }
+@media (min-width: 760px) { .dists { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.dist { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 16px; display: grid; gap: 12px; }
+.dist-bars { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: end; height: 110px; padding-bottom: 2px; border-bottom: 1px solid var(--line-strong); }
+.dist-bars span { background: var(--t-score); border-radius: 5px 5px 0 0; min-height: 2px; position: relative; }
+.dist-bars span i { position: absolute; top: -18px; left: 0; right: 0; text-align: center; font-style: normal; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dist-axis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; font-size: 11.5px; color: var(--faint); text-align: center; }
+.dist-out { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.dist-out b { font-family: var(--font-display); font-size: 18px; }
+
+/* ---------- labs ---------- */
+.lab { display: grid; }
+@media (min-width: 900px) { .lab { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.lab-controls { padding: 18px 20px; display: grid; gap: 14px; align-content: start; border-bottom: 1px solid var(--line); min-width: 0; }
+@media (min-width: 900px) { .lab-controls { border-bottom: 0; border-right: 1px solid var(--line); } }
+.lab-out { padding: 18px 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.slider { display: grid; grid-template-columns: minmax(90px, 34%) minmax(0, 1fr) 52px; gap: 12px; align-items: center; font-size: 14px; }
+.slider .lv { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.slider .lv .n { font-family: var(--font-mono); font-size: 12px; color: var(--faint); flex: none; }
+.slider .lv .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13.5px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); min-width: 0; }
+.big-score { font-family: var(--font-display); font-weight: 800; font-size: 48px; letter-spacing: -0.03em; line-height: 1; color: var(--t-score); font-variant-numeric: tabular-nums; }
+.big-score small { font-size: 18px; color: var(--muted); font-weight: 700; }
+.math { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; line-height: 1.8; overflow-x: auto; }
+.math b { color: var(--fg); }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.dots i { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--good); background: var(--good); display: block; }
+.dots i.x { background: transparent; border-color: var(--bad); }
+.bands { display: grid; grid-template-columns: 1fr 1fr 1fr; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); font-size: 12.5px; text-align: center; }
+.bands div { padding: 6px 4px; color: var(--muted); background: var(--surface-2); }
+.bands div.on { color: var(--fg); font-weight: 700; }
+.bands div.on.low { background: var(--bad-soft); } .bands div.on.mid { background: var(--t-score-soft); } .bands div.on.high { background: var(--good-soft); }
+.advice { font-size: 14.5px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+
+/* ---------- wizard ---------- */
+.wiz { display: grid; }
+@media (min-width: 900px) { .wiz { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.wiz-q { padding: 20px; display: grid; gap: 18px; align-content: start; border-bottom: 1px solid var(--line); }
+@media (min-width: 900px) { .wiz-q { border-bottom: 0; border-right: 1px solid var(--line); } }
+.wiz-step { display: grid; gap: 10px; }
+.wiz-step > p { font-weight: 600; font-size: 15.5px; display: flex; gap: 10px; align-items: center; }
+.wiz-step > p .n { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 12.5px; font-family: var(--font-display); flex: none; }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 14px; cursor: pointer; display: grid; gap: 2px; }
+.opt:hover { border-color: var(--accent); }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+.opt b { font-size: 14.5px; }
+.opt span { font-size: 13px; color: var(--muted); }
+.wiz-out { padding: 20px; display: grid; gap: 14px; align-content: start; }
+.wiz-out .pick { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.wiz-out .pick h3 { font-size: 24px; }
+.wiz-out .why { font-size: 15px; }
+.wiz-empty { color: var(--muted); font-size: 15px; display: grid; gap: 8px; place-content: center; text-align: center; min-height: 220px; }
+.wiz-empty svg { width: 40px; height: 40px; margin: 0 auto; color: var(--line-strong); }
+
+/* ---------- playground ---------- */
+.tour { display: grid; gap: 14px; }
+.tstep { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; align-items: start; }
+.tstep .num { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-family: var(--font-display); }
+.tstep h4 { font-size: 16.5px; margin-bottom: 4px; }
+.tstep p { color: var(--muted); font-size: 15px; }
+.tstep .ui { font-weight: 600; color: var(--fg); }
+.limits { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.limit { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+.limit b { display: block; font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
+.limit span { font-size: 13px; color: var(--muted); }
+.trybar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; padding: 18px 20px; border-radius: var(--radius); background: var(--accent-soft); }
+.trybar p { font-weight: 600; }
+.trybar .note { font-weight: 400; }
+
+/* ---------- gallery ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.gallery { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+.ex { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 14px 16px; display: grid; gap: 10px; align-content: start; }
+.ex-head { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ex-in { font-size: 13.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ex-in.ph { display: flex; gap: 10px; align-items: center; }
+.ex-in.ph img { width: 72px; aspect-ratio: 3/2; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); flex: none; }
+.ex-q { font-size: 14.5px; font-weight: 600; }
+.ex-q .k { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--faint); font-weight: 500; }
+.ex-a { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+.ex-a .v { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.ex-a .v.yes { color: var(--good); } .ex-a .v.no { color: var(--bad); } .ex-a .v.pick { color: var(--t-choice); font-family: var(--font-mono); font-size: 17px; } .ex-a .v.sc { color: var(--t-score); }
+.ex-a .c { font-size: 12.5px; color: var(--muted); text-align: right; }
+.ex details { font-size: 13px; color: var(--muted); }
+.ex summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 13px; }
+.ex details ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 3px; }
+.empty { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+.mini-ex { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
+.mini-ex .ex { padding: 12px 14px; gap: 8px; }
+
+/* ---------- dev ---------- */
+.code-tabs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.dev pre.code { max-height: 560px; border-radius: 0 0 var(--radius) var(--radius); }
+.code-block { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.code-block .cb-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--surface); font-size: 12.5px; color: var(--muted); }
+.rules { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.rule { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); font-size: 14px; }
+.rule b { display: block; font-size: 13px; font-family: var(--font-mono); margin-bottom: 2px; }
+.rule span { color: var(--muted); }
+
+/* ---------- tips ---------- */
+.tips { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.tip { background: var(--surface); padding: 18px; display: grid; gap: 8px; align-content: start; }
+.tip h4 { font-size: 16px; }
+.tip p { font-size: 14.5px; color: var(--muted); }
+.tip .pair { display: grid; gap: 4px; font-size: 13px; }
+.tip .pair span { padding: 5px 9px; border-radius: 7px; }
+.tip .pair .bad { background: var(--bad-soft); }
+.tip .pair .good { background: var(--good-soft); }
+.tip .pair .bad::before { content: "Weak · "; font-weight: 700; color: var(--bad); }
+.tip .pair .good::before { content: "Better · "; font-weight: 700; color: var(--good); }
+
+/* ---------- glossary ---------- */
+.gloss-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.gloss-tools .field-row { flex: 1 1 260px; }
+.gloss { display: grid; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; margin: 0; }
+.term { display: grid; gap: 4px 20px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+@media (min-width: 760px) { .term { grid-template-columns: 230px minmax(0, 1fr); } }
+.term:last-child { border-bottom: 0; }
+.term dt { font-weight: 700; font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.term dt code { font-size: 12px; }
+.term dd { margin: 0; color: var(--muted); font-size: 14.5px; }
+.term mark { background: var(--hl); color: inherit; border-radius: 3px; }
+
+footer.sources { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); display: grid; gap: 10px; }
+footer.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#start">Skip to content</a>
+<div class="shell">
+  <aside class="rail" aria-label="Contents">
+    <a class="brand" href="#start">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="#fff"/></svg></span>
+      Gemini Decisions Guide
+    </a>
+    <nav id="toc">
+      <p class="rail-label">Basics</p>
+      <ol>
+        <li><a href="#start">Start here</a></li>
+        <li><a href="#decision-models">Decision models</a></li>
+        <li><a href="#the-api">The Decisions API</a></li>
+        <li><a href="#the-model">gemini-decision-1</a></li>
+      </ol>
+      <p class="rail-label">Decision types</p>
+      <ol>
+        <li><a href="#three-types">The three types</a></li>
+        <li><a href="#choosing">Which type to use</a></li>
+        <li><a href="#yes-no"><span class="dot" style="background:var(--t-noul)"></span>Yes / No in depth</a></li>
+        <li><a href="#multiple-choice"><span class="dot" style="background:var(--t-choice)"></span>Multiple choice in depth</a></li>
+        <li><a href="#rubric-score"><span class="dot" style="background:var(--t-score)"></span>Rubric score in depth</a></li>
+        <li><a href="#confidence">Reading confidence</a></li>
+      </ol>
+      <p class="rail-label">Using it</p>
+      <ol>
+        <li><a href="#strengths">Strengths and limits</a></li>
+        <li><a href="#playground">The playground</a></li>
+        <li><a href="#examples">Real examples</a></li>
+        <li><a href="#developers">For developers</a></li>
+        <li><a href="#good-questions">Writing good questions</a></li>
+      </ol>
+      <p class="rail-label">Reference</p>
+      <ol>
+        <li><a href="#glossary">Glossary</a></li>
+      </ol>
+    </nav>
+    <div class="rail-foot">
+      <a class="btn btn-primary btn-sm" data-app-link href="#playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>Open the playground</a>
+      <button class="theme-btn" type="button" data-theme-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Theme: system</span></button>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div class="topbar">
+      <nav aria-label="Contents" id="toc-mobile">
+        <a href="#start">Start</a>
+        <a href="#decision-models">Decision models</a>
+        <a href="#the-api">The API</a>
+        <a href="#the-model">The model</a>
+        <a href="#three-types">Types</a>
+        <a href="#choosing">Which type</a>
+        <a href="#yes-no">Yes / No</a>
+        <a href="#multiple-choice">Multiple choice</a>
+        <a href="#rubric-score">Rubric score</a>
+        <a href="#confidence">Confidence</a>
+        <a href="#strengths">Strengths</a>
+        <a href="#playground">Playground</a>
+        <a href="#examples">Examples</a>
+        <a href="#developers">Developers</a>
+        <a href="#good-questions">Tips</a>
+        <a href="#glossary">Glossary</a>
+      </nav>
+      <button class="theme-btn" type="button" data-theme-toggle aria-label="Change theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Theme: system</span></button>
+    </div>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="sec first" id="start">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">A guide to the Gemini Decisions API</p>
+          <h1>Ask a question. <span class="soft">Get a decision, and how&nbsp;sure&nbsp;it&nbsp;is.</span></h1>
+          <p class="lede">This guide explains decision models, Google's Decisions API, the <code>gemini-decision-1</code> model, its three decision types, and the playground we built to try it. Every answer and number in the examples is a real response from the model.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" data-app-link href="#playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>Open the playground</a>
+            <a class="btn btn-ghost" href="#playground"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Watch the overview · 1:41</a>
+          </div>
+          <div class="hero-facts">
+            <span><b>3</b> decision types</span>
+            <span><b>18</b> real-world use cases</span>
+            <span><b>14</b> real examples</span>
+            <span><b>4</b> video guides</span>
+          </div>
+        </div>
+
+        <div class="panel instrument" aria-live="polite">
+          <div class="panel-head">
+            <span class="panel-title">Try a real example</span>
+            <div class="seg" role="tablist" aria-label="Choose an example">
+              <button role="tab" aria-selected="true" data-hero="scam">Text message</button>
+              <button role="tab" aria-selected="false" data-hero="burger">Dinner photo</button>
+            </div>
+          </div>
+          <div id="hero-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DECISION MODELS ===================== -->
+    <section class="sec" id="decision-models">
+      <p class="eyebrow">Basics · 1</p>
+      <h2>What is a decision model?</h2>
+      <div class="prose">
+        <p class="lede">Most AI models you have used are writers. You ask, and they write new text, one word at a time. A decision model is a chooser. You give it the possible answers, and it tells you which one fits and how likely each one is.</p>
+        <p>A huge number of everyday jobs are really about picking. Is this email urgent? Which team should get this ticket? How good is this answer, on a scale of one to five? For these jobs you do not want a paragraph. You want one clear pick that your app can act on, plus a number that says how much to trust it.</p>
+      </div>
+
+      <div class="panel mt-l">
+        <div class="panel-head">
+          <span class="panel-title">Same question, two kinds of model</span>
+          <div class="seg" role="group" aria-label="Choose a model kind">
+            <button aria-pressed="false" data-cmp="gen">A writer model</button>
+            <button aria-pressed="true" data-cmp="dec">A decision model</button>
+          </div>
+        </div>
+        <div style="padding: 18px 18px 0; display: grid;">
+          <p class="q-bubble">Is this message a scam? "Your parcel could not be delivered because of an unpaid customs fee of $1.99…"</p>
+        </div>
+        <div class="compare-stage">
+          <div class="side dim" id="side-gen">
+            <h4><span class="chip plain">Writes</span> Writer model</h4>
+            <p class="gen-text" id="gen-text">This message shows several common warning signs. Delivery companies rarely ask for small customs fees by text, the 12-hour deadline is designed to rush you, and the link does not point to an official courier website. I would recommend not clicking the link and contacting the courier directly through their official site.</p>
+            <p class="note">Illustrative reply. Your code still has to read this text and work out the answer.</p>
+          </div>
+          <div class="side lit" id="side-dec">
+            <h4><span class="chip noul">Chooses</span> Decision model</h4>
+            <div class="mini-probs">
+              <div class="pb sel"><span class="lbl">Yes</span><div class="track"><div class="fill" data-w="99" style="width:99%"></div></div><span class="v">99.0%</span></div>
+              <div class="pb"><span class="lbl">No</span><div class="track"><div class="fill" data-w="1" style="width:1%"></div></div><span class="v">1.0%</span></div>
+            </div>
+            <div class="json-mini">{ "noul": 0.99, "confidence": 0.99 }</div>
+            <p class="note">Real response from <code>gemini-decision-1</code>. Your code reads one number.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap mt-m">
+        <table>
+          <thead><tr><th></th><th>Writer model</th><th>Decision model</th></tr></thead>
+          <tbody>
+            <tr><th>What comes back</th><td>New text in its own words</td><td class="hi">One of the answers you listed, with a probability for each</td></tr>
+            <tr><th>What your code does</th><td>Reads and interprets the text</td><td class="hi">Reads one field, such as <code>choice</code> or <code>score</code></td></tr>
+            <tr><th>Can it go off script?</th><td>Yes, it can answer something you did not ask</td><td class="hi">No, the answer is always from your list</td></tr>
+            <tr><th>Output tokens</th><td>One per word it writes</td><td class="hi">Zero. Our responses show <code>"total_output_tokens": 0</code></td></tr>
+            <tr><th>Best for</th><td>Writing, summarising, chatting</td><td class="hi">Sorting, routing, checking, grading</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== THE API ===================== -->
+    <section class="sec" id="the-api">
+      <p class="eyebrow">Basics · 2</p>
+      <h2>The Gemini Decisions API</h2>
+      <div class="prose">
+        <p class="lede">The Decisions API is Google's service for asking a decision model questions. You send one request with two things: an <b>input</b> to look at, and a list of <b>questions</b> about it. You get back one <b>answer</b> per question.</p>
+        <p>The input is shared. If you ask three questions about one photo, the photo is sent and counted once, and all three questions read it together.</p>
+      </div>
+
+      <div class="flow mt-l" aria-label="How one request works">
+        <div class="flow-col">
+          <h4>1 · Input</h4>
+          <p>Anything the model should look at.</p>
+          <div class="mods">
+            <span class="mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Text</span>
+            <span class="mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>Image</span>
+            <span class="mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>Audio</span>
+            <span class="mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>Video</span>
+            <span class="mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>PDF</span>
+          </div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        <div class="flow-col">
+          <h4>2 · Questions</h4>
+          <p>Each has an ID, a type and its possible answers.</p>
+          <div class="qrow"><span class="k">is_scam</span><span class="chip noul">Yes / No</span></div>
+          <div class="qrow"><span class="k">message_type</span><span class="chip choice">Multiple choice</span></div>
+          <div class="qrow"><span class="k">risk_level</span><span class="chip score">Rubric score</span></div>
+        </div>
+        <div class="flow-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        <div class="flow-col">
+          <h4>3 · Answers</h4>
+          <p>One per question, under the same ID.</p>
+          <div class="arow"><span class="k">is_scam</span><b style="color:var(--good)">Yes · 99%</b></div>
+          <div class="arow"><span class="k">message_type</span><b style="color:var(--t-choice)">delivery</b></div>
+          <div class="arow"><span class="k">risk_level</span><b style="color:var(--t-score)">2.90 / 3</b></div>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Anatomy of a request and a response</h3>
+      <p class="muted" style="max-width:68ch">Pick a part on the right to see where it sits in the real message. Long text is shortened and numbers are rounded.</p>
+      <div class="panel mt-m">
+        <div class="panel-head">
+          <span class="panel-title">The scam text example, as data</span>
+          <div class="seg" role="tablist" aria-label="Request or response">
+            <button role="tab" aria-selected="true" data-anat="req">Request</button>
+            <button role="tab" aria-selected="false" data-anat="res">Response</button>
+          </div>
+        </div>
+        <div class="anat">
+          <div class="anat-code"><pre class="code" id="anat-code"></pre></div>
+          <ul class="anat-list" id="anat-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== THE MODEL ===================== -->
+    <section class="sec" id="the-model">
+      <p class="eyebrow">Basics · 3</p>
+      <h2>Meet gemini-decision-1</h2>
+      <div class="prose">
+        <p class="lede"><code>gemini-decision-1</code> is the model behind the Decisions API. Google released it on November 11, 2026. It reads your input once and scores all of your possible answers together, instead of writing an answer word by word.</p>
+        <p>That one design choice explains most of its numbers below: it is fast, it costs nothing for output, and asking more questions about the same input barely changes the wait.</p>
+      </div>
+
+      <div class="facts mt-l">
+        <div class="fact"><span class="big">150–250<small> ms</small></span><span class="what">Typical response time</span><span class="why">End to end, per Google. Time stays almost flat from 1 to 100 questions.</span></div>
+        <div class="fact"><span class="big">1,000</span><span class="what">Questions per request</span><span class="why">All read the same shared input.</span></div>
+        <div class="fact"><span class="big">256K</span><span class="what">Input tokens</span><span class="why">Room for long documents, images, audio and video.</span></div>
+        <div class="fact"><span class="big">$0.10</span><span class="what">Per million input tokens</span><span class="why">The input is billed once per request, however many questions read it.</span></div>
+        <div class="fact"><span class="big">$0</span><span class="what">For output</span><span class="why">The model returns scores, not written text.</span></div>
+        <div class="fact"><span class="big">5</span><span class="what">Kinds of input</span><span class="why">Text, image, audio, video and PDF, mixed freely in one request.</span></div>
+      </div>
+      <p class="note mt-m">Figures from Google's launch post of November 11, 2026. Prices can change, and Google AI Studio has a free tier for trying things out. The model is available through the Gemini API and Google AI Studio, with Google Cloud support announced as coming soon.</p>
+
+      <div class="panel mt-l">
+        <div class="panel-head"><span class="panel-title">What would it cost?</span></div>
+        <div class="panel-body split">
+          <div class="stack" style="gap:16px">
+            <div class="field">
+              <span class="lab">Start from a real example</span>
+              <div class="seg" role="group" aria-label="Example size">
+                <button aria-pressed="true" data-tok="341">Scam text · 341 tokens</button>
+                <button aria-pressed="false" data-tok="833">Dinner photo · 833 tokens</button>
+              </div>
+            </div>
+            <div class="field-row" style="gap:16px; align-items:flex-end">
+              <div class="field" style="flex:1 1 150px">
+                <label for="calc-tokens">Input tokens per request</label>
+                <input type="number" id="calc-tokens" min="1" step="1" value="341">
+              </div>
+              <div class="field" style="flex:1 1 150px">
+                <label for="calc-requests">Requests</label>
+                <input type="number" id="calc-requests" min="1" step="1000" value="100000">
+              </div>
+            </div>
+            <p class="note">Token counts are the real <code>usage</code> numbers. They include the text of all three questions.</p>
+          </div>
+          <div class="calc-out" aria-live="polite">
+            <span class="sub">Estimated cost</span>
+            <span class="big" id="calc-cost">$3.41</span>
+            <span class="sub" id="calc-per">About 29,325 requests per dollar</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== THREE TYPES ===================== -->
+    <section class="sec" id="three-types">
+      <p class="eyebrow">Decision types · 1</p>
+      <h2>The three decision types</h2>
+      <div class="prose">
+        <p class="lede">Every question has a type. The type sets what you must describe and what shape the answer takes. Pick a type for a quick look, then read its full section below.</p>
+      </div>
+
+      <div class="panel mt-l" id="types">
+        <div class="tabs-row">
+          <div class="seg" role="tablist" aria-label="Decision type">
+            <button role="tab" aria-selected="true" data-type="noul"><span class="dot" style="background:var(--t-noul)"></span>Yes / No</button>
+            <button role="tab" aria-selected="false" data-type="choice"><span class="dot" style="background:var(--t-choice)"></span>Multiple choice</button>
+            <button role="tab" aria-selected="false" data-type="score"><span class="dot" style="background:var(--t-score)"></span>Rubric score</button>
+          </div>
+          <span class="note" id="type-api-name">API name: <code>noul</code></span>
+        </div>
+        <div class="tp" id="type-panel"></div>
+      </div>
+
+      <h3 class="sub-h">Side by side</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th><span class="chip noul">Yes / No</span></th><th><span class="chip choice">Multiple choice</span></th><th><span class="chip score">Rubric score</span></th></tr></thead>
+          <tbody>
+            <tr><th>API name</th><td><code>noul</code></td><td><code>choice</code></td><td><code>score</code></td></tr>
+            <tr><th>The answer is</th><td>Yes or no</td><td>One option from your list</td><td>A position on your scale</td></tr>
+            <tr><th>You describe</th><td>What yes and no mean (optional)</td><td>2 to 255 options</td><td>2 to 255 levels, lowest first</td></tr>
+            <tr><th>Main field returned</th><td><code>noul</code>: chance of yes, 0 to 1</td><td><code>choice</code>: the picked key</td><td><code>score</code>: weighted average, 0 to N−1</td></tr>
+            <tr><th>Answers have an order?</th><td>No</td><td>No</td><td>Yes, low to high</td></tr>
+            <tr><th>More than one can be true?</th><td colspan="3">No. For several labels at once, ask one Yes / No question per label.</td></tr>
+            <tr><th>Confidence can fall below 50%?</th><td class="yesno-cell n">No</td><td class="yesno-cell y">Yes</td><td class="yesno-cell y">Yes</td></tr>
+            <tr><th>Easiest rule in code</th><td>"If noul ≥ 0.9, act"</td><td>"Route to the picked key"</td><td>"If score &lt; 1.5, follow up"</td></tr>
+            <tr><th>Typical jobs</th><td>Checks, filters, flags, guardrails</td><td>Routing, tagging, intent, tool picking</td><td>Grading, sentiment, priority, risk</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== CHOOSING ===================== -->
+    <section class="sec" id="choosing">
+      <p class="eyebrow">Decision types · 2</p>
+      <h2>Which type should I use?</h2>
+      <div class="prose">
+        <p class="lede">Start from the answer you need, not from the question. Answer two short questions and the picker suggests a type, with an example you can copy.</p>
+      </div>
+
+      <div class="panel mt-l">
+        <div class="panel-head"><span class="panel-title">Type picker</span><button class="btn btn-ghost btn-sm" id="wiz-reset" type="button">Start again</button></div>
+        <div class="wiz">
+          <div class="wiz-q">
+            <div class="wiz-step">
+              <p><span class="n">1</span>What should the answer look like?</p>
+              <div class="opts" id="wiz-1">
+                <button class="opt" type="button" aria-pressed="false" data-w1="yesno"><b>Yes or no</b><span>Is it spam? Does it break a rule? Does it need a reply?</span></button>
+                <button class="opt" type="button" aria-pressed="false" data-w1="label"><b>A label from a list</b><span>Which team, which topic, which intent, which tool?</span></button>
+                <button class="opt" type="button" aria-pressed="false" data-w1="scale"><b>A grade or level on a scale</b><span>How good, how risky, how happy, how urgent?</span></button>
+                <button class="opt" type="button" aria-pressed="false" data-w1="free"><b>Free text, a number, or a value from the input</b><span>A summary, a price, a name, a date</span></button>
+              </div>
+            </div>
+            <div class="wiz-step" id="wiz-2-wrap" hidden>
+              <p><span class="n">2</span><span id="wiz-2-q"></span></p>
+              <div class="opts" id="wiz-2"></div>
+            </div>
+          </div>
+          <div class="wiz-out" id="wiz-out" aria-live="polite">
+            <div class="wiz-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3Z"/></svg><span>Pick an answer on the left to get a suggestion.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Common situations</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>You want to know…</th><th>Use</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Is this message spam or a scam?</td><td><span class="chip noul">Yes / No</span></td><td>Two sides, and you need a threshold to act on.</td></tr>
+            <tr><td>Which team should handle this ticket?</td><td><span class="chip choice">Multiple choice</span></td><td>Exactly one owner, from a known list.</td></tr>
+            <tr><td>How does the customer feel?</td><td><span class="chip score">Rubric score</span></td><td>Feelings have an order. "Unhappy" is closer to "Neutral" than to "Delighted".</td></tr>
+            <tr><td>Which tags apply to this article?</td><td><span class="chip noul">Yes / No × N</span></td><td>Several tags can be true at once. Ask one Yes / No question per tag, all in one request.</td></tr>
+            <tr><td>Which tool should my AI agent call?</td><td><span class="chip choice">Multiple choice</span></td><td>One action from a fixed set. Add a "none" option.</td></tr>
+            <tr><td>How well is this answer supported by its sources?</td><td><span class="chip score">Rubric score</span></td><td>Support is a matter of degree, from "not at all" to "fully".</td></tr>
+            <tr><td>What priority is this incident?</td><td><span class="chip score">Rubric score</span> or <span class="chip choice">Multiple choice</span></td><td>Use a score to sort a queue. Use choice when you only need the label.</td></tr>
+            <tr><td>Does this product photo meet our listing rules?</td><td><span class="chip noul">Yes / No</span></td><td>A pass or fail check on an image.</td></tr>
+            <tr><td>What kind of document is this PDF?</td><td><span class="chip choice">Multiple choice</span></td><td>One document type from a known list, plus "other".</td></tr>
+            <tr><td>What is the invoice total?</td><td><span class="chip none">Not a fit</span></td><td>The answer is a value inside the document, not an option you can list. Use a generative model.</td></tr>
+            <tr><td>Summarise this call for me.</td><td><span class="chip none">Not a fit</span></td><td>That needs new text. Use a writer model, then a decision model to check or route it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== YES / NO DEEP DIVE ===================== -->
+    <section class="sec" id="yes-no">
+      <p class="eyebrow">Decision types · 3</p>
+      <div class="dd-head"><h2>Yes / No in depth</h2><span class="chip noul">type: "noul"</span></div>
+      <div class="prose">
+        <p class="lede">The simplest type. You ask a question that has two sides, and the model returns one number: the chance that the answer is yes.</p>
+      </div>
+      <dl class="glance noul">
+        <div><dt>You write</dt><dd>One question, plus what YES and NO mean</dd></div>
+        <div><dt>You get</dt><dd><code>noul</code> (0 to 1) and <code>confidence</code></dd></div>
+        <div><dt>Verdict</dt><dd>Yes when <code>noul</code> is 0.5 or more</dd></div>
+        <div><dt>Best for</dt><dd>Checks, filters, flags and guardrails</dd></div>
+      </dl>
+
+      <h3 class="sub-h">How it works</h3>
+      <ol class="steps">
+        <li><span>You write the question as instructions, for example "Is this message a scam?"</span></li>
+        <li><span>You add a <code>true_description</code> and a <code>false_description</code>. They are optional, but they turn a vague word like "scam" into a clear rule the model can check.</span></li>
+        <li><span>The model returns <code>noul</code>, the chance of yes. 0.99 means "almost certainly yes". 0.12 means "probably no".</span></li>
+        <li><span><code>confidence</code> is the chance of the side it landed on. So <code>noul</code> 0.12 comes with confidence 0.88. That is why a Yes / No confidence is never below 50%.</span></li>
+        <li><span>Your code decides what to do. The real power is that <b>you choose the threshold</b>. You do not have to stop at 0.5.</span></li>
+      </ol>
+
+      <div class="callout mt-l"><b>Pick your threshold from the cost of a mistake.</b> If a wrong "yes" is expensive, for example deleting a real customer's comment, act only above 0.9 and send the middle to a person. If a missed "yes" is expensive, for example letting a phishing link through, act from a lower value such as 0.6.</div>
+
+      <h3 class="sub-h">When to use it, and when not to</h3>
+      <div class="two">
+        <div class="listbox use"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5 9-10"/></svg>Use it when</h4>
+          <ul>
+            <li><span>The question really has two sides: allowed or not, done or not, present or not.</span></li>
+            <li><span>You want to <b>act on a threshold</b>, such as auto-approve above 90%.</span></li>
+            <li><span>You need <b>several independent checks</b> on one input. Ask one Yes / No per check in the same request.</span></li>
+            <li><span>You want a guardrail before an expensive step, such as "Does this request need a web search?"</span></li>
+          </ul>
+        </div>
+        <div class="listbox avoid"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 7l10 10M17 7 7 17"/></svg>Pick another type when</h4>
+          <ul>
+            <li><span>There is a <b>middle ground you care about</b>, like "somewhat urgent". Use a <a href="#rubric-score">Rubric score</a>.</span></li>
+            <li><span>You are choosing <b>between named options</b>, like billing or technical. Use <a href="#multiple-choice">Multiple choice</a>.</span></li>
+            <li><span>You find yourself writing "and" or "or" in the question. Split it into two Yes / No questions.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Real-world use cases</h3>
+      <div class="uc-grid">
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Trust and safety</span><span class="chip plain">Text</span></div><h4>Does this comment break our community rules?</h4><p class="crit">YES: harassment, hate speech, spam or explicit content<br>NO: none of these</p><p class="act">Hide above 0.9, send 0.5 to 0.9 to a moderator.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Security</span><span class="chip plain">Text</span></div><h4>Is this message a phishing attempt?</h4><p class="crit">YES: asks for money or details through a link, or uses pressure<br>NO: a genuine message</p><p class="act">Show a warning banner above the message.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Productivity</span><span class="chip plain">Email</span></div><h4>Does this email need a reply today?</h4><p class="crit">YES: asks a question or has a deadline within a day<br>NO: for information only</p><p class="act">Pin it to the top of the inbox.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">E-commerce</span><span class="chip plain">Image</span></div><h4>Does this product photo show the item on a plain background?</h4><p class="crit">YES: one item, plain light background, no text<br>NO: busy scene, collage or watermark</p><p class="act">Approve the listing, or ask the seller for a new photo.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Customer calls</span><span class="chip plain">Audio</span></div><h4>Did the customer ask to cancel their subscription?</h4><p class="crit">YES: clearly asks to cancel or close the account<br>NO: any other request</p><p class="act">Send the call to the retention team.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">AI agents</span><span class="chip plain">Text</span></div><h4>Does this request need fresh information from the web?</h4><p class="crit">YES: asks about recent events, prices or live data<br>NO: can be answered from general knowledge</p><p class="act">Call the search tool only when needed, which saves time and cost.</p></article>
+      </div>
+
+      <h3 class="sub-h">Pros and cons</h3>
+      <div class="two">
+        <div class="listbox pro"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Pros</h4>
+          <ul>
+            <li><span><b>Simplest to write and to read.</b> One question, one number.</span></li>
+            <li><span><b>Tunable.</b> Move the threshold to be stricter or more relaxed, without changing the question.</span></li>
+            <li><span><b>Stacks well.</b> Ten Yes / No checks on one input still use one request and share the input cost.</span></li>
+            <li><span><b>Clear rules.</b> The YES and NO descriptions document your policy, so anyone can review it.</span></li>
+          </ul>
+        </div>
+        <div class="listbox con"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>Cons</h4>
+          <ul>
+            <li><span><b>Forces two sides.</b> Grey areas get squeezed into yes or no. A value near 0.5 means "can't tell", not "half true".</span></li>
+            <li><span><b>One rule per question.</b> Questions with "and" or "or" blur the answer.</span></li>
+            <li><span><b>Wording matters.</b> Negative questions ("Is it not safe?") are easy to misread, for people and models.</span></li>
+            <li><span><b>No "not applicable".</b> If the question may not apply, ask that first as its own Yes / No.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Acting on the answer</h3>
+      <div class="code-block"><div class="cb-head"><span>Python · three-way routing on one Yes / No answer</span></div>
+<pre class="code"><span class="c-k">p_yes</span> = answers[<span class="c-s">"breaks_rules"</span>][<span class="c-s">"noul"</span>]
+
+<span class="c-k">if</span> p_yes &gt;= <span class="c-n">0.90</span>:
+    hide_comment()          <span class="c-c"># very likely breaks the rules</span>
+<span class="c-k">elif</span> p_yes &gt;= <span class="c-n">0.50</span>:
+    send_to_moderator()     <span class="c-c"># leaning yes, let a person decide</span>
+<span class="c-k">else</span>:
+    publish()</pre></div>
+
+      <h3 class="sub-h">Common mistakes</h3>
+      <div class="mistakes">
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>Is this urgent?</span><span class="good"><span class="lbl">Better</span>YES: mentions a deadline, money lost or an escalation</span><span class="why">"Urgent" means different things to different teams. Say what counts.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>Is it a refund request about a late order?</span><span class="good"><span class="lbl">Better</span>is_refund_request + is_about_late_order</span><span class="why">Two facts in one question. Split them so each answer means one thing.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>Is this review not positive?</span><span class="good"><span class="lbl">Better</span>Is this review negative?</span><span class="why">Ask for the thing you are looking for, so YES always means "found it".</span></div>
+      </div>
+
+      <h3 class="sub-h">See it in the playground</h3>
+      <div class="split top">
+        <div class="yt-slot" data-video="noul"></div>
+        <div class="mini-ex" data-mini="noul"></div>
+      </div>
+    </section>
+
+    <!-- ===================== MULTIPLE CHOICE DEEP DIVE ===================== -->
+    <section class="sec" id="multiple-choice">
+      <p class="eyebrow">Decision types · 4</p>
+      <div class="dd-head"><h2>Multiple choice in depth</h2><span class="chip choice">type: "choice"</span></div>
+      <div class="prose">
+        <p class="lede">The model picks exactly one option from a list you write, and gives every option a probability. The pick tells you what to do. The probabilities tell you how close the race was.</p>
+      </div>
+      <dl class="glance choice">
+        <div><dt>You write</dt><dd>One question and 2 to 255 options</dd></div>
+        <div><dt>You get</dt><dd><code>choice</code>, <code>confidence</code>, <code>probabilities</code></dd></div>
+        <div><dt>Option format</dt><dd><code>key: description</code></dd></div>
+        <div><dt>Best for</dt><dd>Routing, tagging, intent and tool picking</dd></div>
+      </dl>
+
+      <h3 class="sub-h">How it works</h3>
+      <ol class="steps">
+        <li><span>You write the question, for example "Which team should handle this ticket?"</span></li>
+        <li><span>You list the options as <b>keys with descriptions</b>. The key, like <code>billing</code>, is what your code receives. The description, like "Payments, invoices, refunds", helps the model understand what belongs there.</span></li>
+        <li><span>The model spreads 100% across all options. The highest one becomes <code>choice</code>, and its share becomes <code>confidence</code>.</span></li>
+        <li><span>Look at the <b>runner-up</b> too. In the restaurant review, <code>wait_time</code> won at 80.5% and <code>staff</code> came second at 18.5%. That was a fair reading: the review complains about both the wait and the missing apology.</span></li>
+      </ol>
+
+      <div class="callout mt-l"><b>Use the gap between the top two.</b> A pick at 95% with the next option at 3% is clear. A pick at 48% with the next at 44% is a coin toss, even though there is still a "winner". Measuring that gap is a simple way to send close calls to a person.</div>
+
+      <h3 class="sub-h">When to use it, and when not to</h3>
+      <div class="two">
+        <div class="listbox use"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5 9-10"/></svg>Use it when</h4>
+          <ul>
+            <li><span><b>Exactly one</b> option should be true at a time.</span></li>
+            <li><span>The options are <b>named categories with no order</b>: teams, topics, intents, tools, document types.</span></li>
+            <li><span>Each option leads to a <b>different code path</b>, so the key can go straight into your routing.</span></li>
+            <li><span>You have <b>many options</b>. Up to 255 fit in one question, which suits tool and model routing.</span></li>
+          </ul>
+        </div>
+        <div class="listbox avoid"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 7l10 10M17 7 7 17"/></svg>Pick another type when</h4>
+          <ul>
+            <li><span><b>Several options can be true at once</b>, like article tags. Ask one <a href="#yes-no">Yes / No</a> per tag instead.</span></li>
+            <li><span>The options <b>have an order</b>, like low, medium, high. A <a href="#rubric-score">Rubric score</a> knows that medium sits between the two.</span></li>
+            <li><span>There are only two options and they are opposites. That is a Yes / No question.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Real-world use cases</h3>
+      <div class="uc-grid">
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Customer support</span><span class="chip plain">Text</span></div><h4>Which team should handle this ticket?</h4><p class="crit">billing · technical · account · other</p><p class="act">Put the ticket in that team's queue.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Assistants</span><span class="chip plain">Text or audio</span></div><h4>What does the user want to do?</h4><p class="crit">book · change · cancel · ask_question · other</p><p class="act">Start the matching flow in the chat or voice bot.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">AI agents</span><span class="chip plain">Text</span></div><h4>Which tool should answer this request?</h4><p class="crit">web_search · calendar · calculator · knowledge_base · none</p><p class="act">Call only that tool, or answer directly when it says none.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">AI platforms</span><span class="chip plain">Text</span></div><h4>Which model should handle this prompt?</h4><p class="crit">small_fast · large_reasoning · code_specialist</p><p class="act">Send simple prompts to the cheaper model.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Back office</span><span class="chip plain">PDF</span></div><h4>What kind of document is this?</h4><p class="crit">invoice · receipt · contract · id_document · other</p><p class="act">File it and start the right processing step.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Insurance</span><span class="chip plain">Image</span></div><h4>What damage does this car photo show?</h4><p class="crit">scratch · dent · broken_glass · no_damage · unclear_photo</p><p class="act">Choose the claim form, or ask for a clearer photo.</p></article>
+      </div>
+      <p class="note mt-m">Google lists tool selection and model routing among the jobs the API was built for.</p>
+
+      <h3 class="sub-h">Pros and cons</h3>
+      <div class="two">
+        <div class="listbox pro"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Pros</h4>
+          <ul>
+            <li><span><b>One pick from many, in one step.</b> No chain of yes or no questions to narrow things down.</span></li>
+            <li><span><b>The full picture.</b> Probabilities for every option show the runner-up and how close it was.</span></li>
+            <li><span><b>Maps straight to code.</b> The key goes into a lookup table or a switch statement.</span></li>
+            <li><span><b>Easy to change.</b> Add, rename or remove options by editing text. No training data needed.</span></li>
+            <li><span><b>Scales to big lists.</b> Up to 255 options per question.</span></li>
+          </ul>
+        </div>
+        <div class="listbox con"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>Cons</h4>
+          <ul>
+            <li><span><b>Always exactly one answer.</b> It cannot say "two of these apply".</span></li>
+            <li><span><b>Must pick something.</b> Without an "other" or "none" option, an input that fits nothing is forced into a wrong box.</span></li>
+            <li><span><b>Overlaps split the vote.</b> Similar options share probability, which lowers confidence for both.</span></li>
+            <li><span><b>Ignores order.</b> To this type, "medium" is no closer to "high" than "low" is.</span></li>
+            <li><span><b>Long lists cost tokens.</b> Every option and description is part of the input.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Acting on the answer</h3>
+      <div class="code-block"><div class="cb-head"><span>Python · route only clear wins, send close calls to triage</span></div>
+<pre class="code">a = answers[<span class="c-s">"team"</span>]
+ranked = <span class="c-k">sorted</span>(a[<span class="c-s">"probabilities"</span>].values(), reverse=<span class="c-k">True</span>)
+gap = ranked[<span class="c-n">0</span>] - ranked[<span class="c-n">1</span>]     <span class="c-c"># winner minus runner-up</span>
+
+<span class="c-k">if</span> a[<span class="c-s">"confidence"</span>] &gt;= <span class="c-n">0.85</span> <span class="c-k">and</span> gap &gt;= <span class="c-n">0.5</span>:
+    route_to(a[<span class="c-s">"choice"</span>])
+<span class="c-k">else</span>:
+    route_to(<span class="c-s">"triage"</span>)         <span class="c-c"># a close race: let a person decide</span></pre></div>
+
+      <h3 class="sub-h">Common mistakes</h3>
+      <div class="mistakes">
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>billing · technical · account</span><span class="good"><span class="lbl">Better</span>billing · technical · account · other</span><span class="why">Give inputs that fit nothing somewhere to go. Otherwise they land in the closest wrong box.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>slow_service · long_wait</span><span class="good"><span class="lbl">Better</span>wait_time · staff</span><span class="why">Two options that mean the same thing split the vote and lower confidence.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>low · medium · high</span><span class="good"><span class="lbl">Better</span>Use a Rubric score</span><span class="why">Ordered options belong on a scale, where the model's in-between answers still mean something.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>a · b · c (no descriptions)</span><span class="good"><span class="lbl">Better</span>billing: Payments, invoices, refunds</span><span class="why">Short keys are for your code. Descriptions are for the model. Write both.</span></div>
+      </div>
+
+      <h3 class="sub-h">See it in the playground</h3>
+      <div class="split top">
+        <div class="yt-slot" data-video="choice"></div>
+        <div class="mini-ex" data-mini="choice"></div>
+      </div>
+    </section>
+
+    <!-- ===================== RUBRIC SCORE DEEP DIVE ===================== -->
+    <section class="sec" id="rubric-score">
+      <p class="eyebrow">Decision types · 5</p>
+      <div class="dd-head"><h2>Rubric score in depth</h2><span class="chip score">type: "score"</span></div>
+      <div class="prose">
+        <p class="lede">Grade the input on an ordered scale that you define. Instead of one label, you get a score that can land between levels, like 1.96 on a scale from 0 to 4.</p>
+      </div>
+      <dl class="glance score">
+        <div><dt>You write</dt><dd>One question and 2 to 255 levels, lowest first</dd></div>
+        <div><dt>You get</dt><dd><code>score</code>, <code>confidence</code>, <code>probabilities</code>, <code>legend</code></dd></div>
+        <div><dt>Numbering</dt><dd>Levels count from 0, so 5 levels give 0 to 4</dd></div>
+        <div><dt>Best for</dt><dd>Grading, sentiment, priority and risk</dd></div>
+      </dl>
+
+      <h3 class="sub-h">How it works</h3>
+      <ol class="steps">
+        <li><span>You write the question, for example "How satisfied is the guest?"</span></li>
+        <li><span>You list the levels <b>from lowest to highest</b>, each with a short description, such as "Neutral: mixed feelings". The first level is number 0.</span></li>
+        <li><span>The model gives every level a probability. The response also includes a <code>legend</code> that maps the numbers back to your level text.</span></li>
+        <li><span>The <code>score</code> is the average of the level numbers, weighted by those probabilities. That is why it can fall between levels.</span></li>
+        <li><span><code>confidence</code> is the probability of the single most likely level. Read it next to the score.</span></li>
+      </ol>
+
+      <h3 class="sub-h">Try the maths</h3>
+      <p class="muted" style="max-width:68ch">The real hotel review answer has <b>Neutral</b> as the most likely level at 74.8%, but the score is <b>1.96</b>, not 2. A little weight on <i>Unhappy</i> pulls it down more than <i>Happy</i> pushes it up. Move the sliders to see how the score responds.</p>
+      <div class="panel mt-m" id="score-maths">
+        <div class="panel-head">
+          <span class="panel-title">Score lab · <span class="mono" style="text-transform:none;letter-spacing:0">satisfaction</span></span>
+          <button class="btn btn-ghost btn-sm" id="score-reset" type="button">Reset to the real answer</button>
+        </div>
+        <div class="lab">
+          <div class="lab-controls" id="score-sliders"></div>
+          <div class="lab-out" aria-live="polite">
+            <div>
+              <div class="big-score"><span id="score-val">1.96</span><small> / 4</small></div>
+              <p class="muted" style="font-size:14px;margin-top:6px">Most likely level: <b id="score-top" style="color:var(--fg)">Neutral</b></p>
+            </div>
+            <div>
+              <div class="scale"><span class="pin" id="score-pin" style="left:49%"></span></div>
+              <div class="scale-ticks"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+            </div>
+            <div class="math" id="score-math"></div>
+            <p class="note">The sliders are rescaled so the probabilities always add up to 100%, as the model's do.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Same score, different story</h3>
+      <p class="muted" style="max-width:68ch">A score is an average, and averages can hide disagreement. Both answers below score exactly 2.00. Only the confidence and probabilities tell them apart.</p>
+      <div class="dists mt-m">
+        <div class="dist">
+          <div class="dist-bars" aria-label="All probability on level 2"><span style="height:0%"><i>0%</i></span><span style="height:0%"><i>0%</i></span><span style="height:100%"><i>100%</i></span><span style="height:0%"><i>0%</i></span><span style="height:0%"><i>0%</i></span></div>
+          <div class="dist-axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+          <div class="dist-out"><span>Score <b>2.00</b></span><span>Confidence <b style="color:var(--good)">100%</b></span></div>
+          <p style="font-size:14px">The model is sure the guest is neutral.</p>
+        </div>
+        <div class="dist">
+          <div class="dist-bars" aria-label="Half on level 0 and half on level 4"><span style="height:50%"><i>50%</i></span><span style="height:0%"><i>0%</i></span><span style="height:0%"><i>0%</i></span><span style="height:0%"><i>0%</i></span><span style="height:50%"><i>50%</i></span></div>
+          <div class="dist-axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+          <div class="dist-out"><span>Score <b>2.00</b></span><span>Confidence <b style="color:var(--mid)">50%</b></span></div>
+          <p style="font-size:14px">The model is split between "very unhappy" and "very happy". The input may be sarcastic or mixed. Look at it.</p>
+        </div>
+      </div>
+      <p class="note mt-m">Illustration of how the maths works, not real responses.</p>
+
+      <h3 class="sub-h">When to use it, and when not to</h3>
+      <div class="two">
+        <div class="listbox use"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5 9-10"/></svg>Use it when</h4>
+          <ul>
+            <li><span>The answers have a <b>natural order</b>: bad to good, low to high, calm to angry.</span></li>
+            <li><span>You want to <b>sort, rank or average</b> many items, such as finding the 20 unhappiest reviews this week.</span></li>
+            <li><span>You want to <b>track a trend</b> over time, such as average satisfaction per month.</span></li>
+            <li><span>You already grade with a <b>written rubric</b>, as in teaching, hiring or quality checks.</span></li>
+          </ul>
+        </div>
+        <div class="listbox avoid"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 7l10 10M17 7 7 17"/></svg>Pick another type when</h4>
+          <ul>
+            <li><span>The options <b>have no order</b>, like teams or topics. Use <a href="#multiple-choice">Multiple choice</a>.</span></li>
+            <li><span>You only need <b>pass or fail</b>. A <a href="#yes-no">Yes / No</a> question is simpler.</span></li>
+            <li><span>The question <b>may not apply</b> at all. Ask that first as a Yes / No, then score only when it applies.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Real-world use cases</h3>
+      <div class="uc-grid">
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Customer experience</span><span class="chip plain">Text</span></div><h4>How does the customer feel?</h4><p class="crit">Very negative → Negative → Neutral → Positive → Very positive</p><p class="act">Follow up on scores under 1.5, and chart the weekly average.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">AI quality</span><span class="chip plain">Text</span></div><h4>How well is this answer supported by the sources?</h4><p class="crit">Not supported → Partly supported → Mostly supported → Fully supported</p><p class="act">Block or rewrite answers that score low, before users see them.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Education</span><span class="chip plain">Text or PDF</span></div><h4>How well does the essay use evidence?</h4><p class="crit">Missing → Weak → Adequate → Strong → Excellent</p><p class="act">Give a first-pass grade, and have a teacher review the low-confidence ones.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Operations</span><span class="chip plain">Text</span></div><h4>How urgent is this incident report?</h4><p class="crit">Low → Normal → High → Critical</p><p class="act">Sort the on-call queue by score, highest first.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Marketplaces</span><span class="chip plain">Image</span></div><h4>How clear is this product photo?</h4><p class="crit">Unusable → Blurry → Acceptable → Sharp</p><p class="act">Rank listings by photo quality, and nudge sellers below 1.5.</p></article>
+        <article class="uc"><div class="uc-top"><span class="uc-dom">Contact centres</span><span class="chip plain">Audio</span></div><h4>How polite and helpful was the agent?</h4><p class="crit">Rude → Unhelpful → Adequate → Helpful → Outstanding</p><p class="act">Coach on low scores, and celebrate high ones.</p></article>
+      </div>
+      <p class="note mt-m">Google lists context grading and content grading among the jobs the API was built for.</p>
+
+      <h3 class="sub-h">Pros and cons</h3>
+      <div class="two">
+        <div class="listbox pro"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Pros</h4>
+          <ul>
+            <li><span><b>Respects order.</b> Near misses stay near: "Unhappy" lands close to "Neutral".</span></li>
+            <li><span><b>A number you can do maths with.</b> Sort, rank, average and chart trends.</span></li>
+            <li><span><b>Captures in-between cases.</b> 1.96 says "neutral, leaning unhappy" in one number.</span></li>
+            <li><span><b>Your rubric is the documentation.</b> The level text is the grading standard everyone can read.</span></li>
+          </ul>
+        </div>
+        <div class="listbox con"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>Cons</h4>
+          <ul>
+            <li><span><b>An average can hide a split.</b> Always read confidence next to the score.</span></li>
+            <li><span><b>Order is on you.</b> List levels lowest first, or high scores will mean the opposite of what you think.</span></li>
+            <li><span><b>Steps count as equal.</b> The maths treats each step as the same size, even when your levels are not.</span></li>
+            <li><span><b>Starts at 0.</b> A 1 to 5 star scale needs <code>score + 1</code> in your code.</span></li>
+            <li><span><b>Fuzzy levels blur.</b> Many similar levels spread probability thin. Fewer, clearly different levels work better.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Acting on the answer</h3>
+      <div class="code-block"><div class="cb-head"><span>Python · use the score, but check the spread</span></div>
+<pre class="code">a = answers[<span class="c-s">"satisfaction"</span>]
+stars = a[<span class="c-s">"score"</span>] + <span class="c-n">1</span>               <span class="c-c"># levels 0-4 become 1-5 stars</span>
+
+<span class="c-k">if</span> a[<span class="c-s">"confidence"</span>] &lt; <span class="c-n">0.5</span>:
+    flag_for_review()                 <span class="c-c"># the model is split between levels</span>
+<span class="c-k">elif</span> a[<span class="c-s">"score"</span>] &lt; <span class="c-n">1.5</span>:
+    open_follow_up_ticket()           <span class="c-c"># unhappy guest</span></pre></div>
+
+      <h3 class="sub-h">Common mistakes</h3>
+      <div class="mistakes">
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>Excellent · Good · Fair · Poor</span><span class="good"><span class="lbl">Better</span>Poor · Fair · Good · Excellent</span><span class="why">Levels must go from lowest to highest. Reversed levels flip the meaning of every score.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>Bad · OK · Good</span><span class="good"><span class="lbl">Better</span>Poor: unclear or incorrect · Fair: notable gaps · Good: clear · Excellent: complete</span><span class="why">A short description on each level tells the model where the line sits.</span></div>
+        <div class="mistake"><span class="bad"><span class="lbl">Weak</span>if score == 2: …</span><span class="good"><span class="lbl">Better</span>if 1.5 &lt;= score &lt; 2.5: …</span><span class="why">Scores are rarely whole numbers. Compare with ranges.</span></div>
+      </div>
+
+      <h3 class="sub-h">See it in the playground</h3>
+      <div class="split top">
+        <div class="yt-slot" data-video="score"></div>
+        <div class="mini-ex" data-mini="score"></div>
+      </div>
+    </section>
+
+    <!-- ===================== CONFIDENCE ===================== -->
+    <section class="sec" id="confidence">
+      <p class="eyebrow">Decision types · 6</p>
+      <h2>Reading probabilities and confidence</h2>
+      <div class="prose">
+        <p class="lede"><b>Probabilities</b> spread 100% across every possible answer. <b>Confidence</b> is the probability of the answer the model picked. In every response we collected, confidence equals the top probability.</p>
+        <p>Google describes the model as <b>calibrated</b>. That means its confidence tends to match reality: when it says 80%, it is right about 8 times out of 10. That is what lets you set a simple rule in your app, such as "act automatically above 90%, ask a person below it".</p>
+      </div>
+
+      <div class="panel mt-l">
+        <div class="panel-head"><span class="panel-title">Confidence lab · Yes / No</span></div>
+        <div class="lab">
+          <div class="lab-controls">
+            <div class="field">
+              <label for="conf-slider">Chance of yes (the <code>noul</code> value)</label>
+              <div class="slider" style="grid-template-columns:minmax(0,1fr) 56px">
+                <input type="range" id="conf-slider" min="0" max="100" step="0.5" value="96.9">
+                <output id="conf-p" for="conf-slider">96.9%</output>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lab">Try a real answer</span>
+              <div class="field-row">
+                <button class="btn btn-ghost btn-sm" type="button" data-conf="96.9">Email needs a reply · 96.9%</button>
+                <button class="btn btn-ghost btn-sm" type="button" data-conf="11.5">Burger is vegetarian · 11.5%</button>
+                <button class="btn btn-ghost btn-sm" type="button" data-conf="55">A close call · 55%</button>
+              </div>
+            </div>
+            <p class="note">The playground labels confidence High from 80%, Moderate from 50% and Low below that. For a Yes / No question confidence never drops below 50%, because one side always holds at least half. With more options it can: four options could split 40 / 30 / 20 / 10.</p>
+          </div>
+          <div class="lab-out" aria-live="polite">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+              <span class="verdict yes" id="conf-verdict">Yes</span>
+              <span class="muted" style="font-size:14px">Confidence <b id="conf-val" style="color:var(--fg)">96.9%</b></span>
+            </div>
+            <div class="track" style="height:10px"><div class="fill" id="conf-fill" style="width:96.9%"></div></div>
+            <div class="bands"><div class="low" data-band="low">Low · under 50%</div><div class="mid" data-band="mid">Moderate · 50–80%</div><div class="high on" data-band="high">High · 80%+</div></div>
+            <p class="advice" id="conf-advice">The model is 97% sure the answer is yes. A good candidate for acting automatically.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="split top mt-l">
+        <div class="prose">
+          <h3>When confidence is low, look closer</h3>
+          <p>For the dinner photo, the model scored healthiness at 0.59 out of 3 with only <b>53% confidence</b>. It was torn between <i>Very unhealthy</i> (53.0%) and <i>Unhealthy</i> (36.3%). Both are sensible for a burger and fries. Low confidence often means your levels are close together, or the input could honestly go either way.</p>
+          <p>The fix is usually in the question, not the model. Make the levels more distinct, or add a sentence to each one saying what it looks like.</p>
+        </div>
+        <div class="stack" style="gap:12px">
+          <div class="field"><span class="lab">A calibrated 80% means about 8 in 10 are right</span>
+            <div class="dots" role="img" aria-label="8 of 10 correct"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="x"></i><i class="x"></i></div>
+          </div>
+          <div class="field"><span class="lab">A calibrated 50% is a coin toss</span>
+            <div class="dots" role="img" aria-label="5 of 10 correct"><i></i><i></i><i></i><i></i><i></i><i class="x"></i><i class="x"></i><i class="x"></i><i class="x"></i><i class="x"></i></div>
+          </div>
+          <p class="note">Illustration of what calibration means, not measured data.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== STRENGTHS & LIMITS ===================== -->
+    <section class="sec" id="strengths">
+      <p class="eyebrow">Using it · 1</p>
+      <h2>Strengths and limits</h2>
+      <div class="prose">
+        <p class="lede">The Decisions API is a specialist. It is excellent at picking from answers you can list, and it is not meant for anything else. Knowing both sides helps you design around it.</p>
+      </div>
+
+      <div class="two mt-l">
+        <div class="listbox pro"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Where it shines</h4>
+          <ul>
+            <li><span><b>Answers your code can trust.</b> The answer is always one of yours, with no parsing of free text.</span></li>
+            <li><span><b>A number for trust.</b> Calibrated confidence lets you automate the clear cases and review the rest.</span></li>
+            <li><span><b>Fast.</b> Google quotes 150 to 250 ms, nearly flat from 1 to 100 questions.</span></li>
+            <li><span><b>Cheap.</b> Output is free and the input is billed once, however many questions read it.</span></li>
+            <li><span><b>Multimodal.</b> Images, audio, video and PDFs work directly. Google notes there are no separate transcription or OCR fees.</span></li>
+            <li><span><b>No training.</b> Change the questions and options by editing text. There is no dataset to label.</span></li>
+          </ul>
+        </div>
+        <div class="listbox con"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>What it does not do</h4>
+          <ul>
+            <li><span><b>No writing.</b> It cannot summarise, translate, reply or explain.</span></li>
+            <li><span><b>No extracting.</b> It cannot pull out a price, a name or a date. Answers must be listed in advance.</span></li>
+            <li><span><b>No reasons.</b> It tells you what and how sure, not why. In the playground, the line under a Yes / No verdict is your own description, not the model's explanation.</span></li>
+            <li><span><b>Only as good as your options.</b> Vague, overlapping or missing options lead to weak answers.</span></li>
+            <li><span><b>A preview API.</b> The playground calls it through <code>v1beta</code>, so field names may still change.</span></li>
+            <li><span><b>Still a model.</b> It can be wrong. Keep a person in the loop for decisions that really matter.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Compared with other ways to make decisions</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Decisions API</th><th>Prompting a chat model</th><th>Training your own classifier</th></tr></thead>
+          <tbody>
+            <tr><th>Setup</th><td class="hi">Write questions and options</td><td>Write a prompt, then parse the reply</td><td>Collect and label data, train, host</td></tr>
+            <tr><th>Labelled data needed</th><td class="hi">None</td><td>None</td><td>Hundreds to thousands of examples</td></tr>
+            <tr><th>Answer always from your list</th><td class="hi">Yes</td><td>Usually, but you must check</td><td>Yes</td></tr>
+            <tr><th>Probability for every answer</th><td class="hi">Yes</td><td>Not directly</td><td>Usually</td></tr>
+            <tr><th>Change the labels</th><td class="hi">Edit text</td><td>Edit the prompt</td><td>Relabel and retrain</td></tr>
+            <tr><th>Explains its reasoning</th><td>No</td><td>Yes</td><td>No</td></tr>
+            <tr><th>Output cost</th><td class="hi">$0</td><td>Paid per output token</td><td>Your own hosting</td></tr>
+            <tr><th>Images, audio, video, PDF</th><td class="hi">Built in</td><td>Depends on the model</td><td>Usually one model per kind</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note mt-m">General guidance to help you choose. Your results depend on your data and questions.</p>
+
+      <div class="callout mt-l"><b>They work well together.</b> A common pattern is to let a writer model draft a reply, then ask the Decisions API "Is this reply safe to send?" and "How well does it answer the question?" before it reaches a customer.</div>
+    </section>
+
+    <!-- ===================== PLAYGROUND ===================== -->
+    <section class="sec" id="playground">
+      <p class="eyebrow">Using it · 2</p>
+      <h2>The Gemini Decisions Playground</h2>
+      <div class="prose">
+        <p class="lede">The playground is a free web app for trying the Decisions API without writing code. You add an input, build your questions, press one button and see the answers as cards. Every example in this guide was made with it.</p>
+      </div>
+
+      <div class="split top mt-l" style="gap:32px">
+        <div class="tour">
+          <div class="tstep"><span class="num">1</span><div><h4>Add your input</h4><p>In the <span class="ui">Input &amp; media</span> tab, paste text, upload files, or both. Images, audio, video and PDFs all work. For images and video you can choose a <span class="ui">resolution</span>: more detail uses more tokens.</p></div></div>
+          <div class="tstep"><span class="num">2</span><div><h4>Write your questions</h4><p>In <span class="ui">Decision questions</span>, give each question a short ID, pick its type, and write the instruction. Then describe what yes and no mean, list the options, or list the rubric levels from lowest to highest. <span class="ui">Templates</span> in the sidebar add a ready-made question of each type.</p></div></div>
+          <div class="tstep"><span class="num">3</span><div><h4>Run</h4><p>The <span class="ui">Run request</span> panel ticks each check green. Press <span class="ui">Run decisions</span> and every question goes to the model in one request.</p></div></div>
+          <div class="tstep"><span class="num">4</span><div><h4>Read the results</h4><p>The <span class="ui">Results</span> tab shows one card per question with its answer, confidence and probabilities, plus tokens used and response time. Open <span class="ui">Raw API response</span> or download the JSON to use it in code.</p></div></div>
+          <p class="note">New here? Press <b>Try an example</b> in the sidebar to load a support ticket with three ready questions.</p>
+        </div>
+        <div class="stack" style="gap:12px">
+          <div class="yt-slot" data-video="overview"></div>
+          <div id="pg-videos" class="stack" style="gap:10px"></div>
+        </div>
+      </div>
+
+      <h3 class="sub-h">Fair-use limits on the public playground</h3>
+      <div class="limits">
+        <div class="limit"><b>10</b><span>runs per visit</span></div>
+        <div class="limit"><b>10 s</b><span>wait between runs</span></div>
+        <div class="limit"><b>20 MB</b><span>of media per run</span></div>
+        <div class="limit"><b>10,000</b><span>characters of text</span></div>
+        <div class="limit"><b>10</b><span>questions per run</span></div>
+      </div>
+      <p class="note mt-m">These limits keep the shared demo running for everyone. The API itself allows far more, as the model section shows.</p>
+
+      <div class="trybar mt-l">
+        <p>Ready to try your own question? <span class="note" id="app-note"></span></p>
+        <a class="btn btn-primary" data-app-link href="#playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>Open the playground</a>
+      </div>
+    </section>
+
+    <!-- ===================== EXAMPLES ===================== -->
+    <section class="sec" id="examples">
+      <p class="eyebrow">Using it · 3</p>
+      <h2>Real examples</h2>
+      <div class="prose">
+        <p class="lede">Fourteen questions we ran in the playground, with the model's actual answers. Filter by decision type or by input.</p>
+      </div>
+      <div class="filters mt-m">
+        <div class="seg" role="group" aria-label="Filter by type">
+          <button aria-pressed="true" data-ft="all">All types</button>
+          <button aria-pressed="false" data-ft="noul">Yes / No</button>
+          <button aria-pressed="false" data-ft="choice">Multiple choice</button>
+          <button aria-pressed="false" data-ft="score">Rubric score</button>
+        </div>
+        <div class="seg" role="group" aria-label="Filter by input">
+          <button aria-pressed="true" data-fi="all">Any input</button>
+          <button aria-pressed="false" data-fi="text">Text</button>
+          <button aria-pressed="false" data-fi="photo">Photo</button>
+        </div>
+        <span class="note" id="ex-count"></span>
+      </div>
+      <div class="gallery mt-m" id="gallery"></div>
+    </section>
+
+    <!-- ===================== DEVELOPERS ===================== -->
+    <section class="sec dev" id="developers">
+      <p class="eyebrow">Using it · 4</p>
+      <h2>For developers</h2>
+      <div class="prose">
+        <p class="lede">The playground uses Google's <code>google-genai</code> Python SDK. Here is the same call it makes, ready to copy.</p>
+      </div>
+
+      <div class="panel mt-l">
+        <div class="code-tabs">
+          <div class="seg" role="tablist" aria-label="Code sample">
+            <button role="tab" aria-selected="true" data-code="py">Python</button>
+            <button role="tab" aria-selected="false" data-code="file">Adding a photo</button>
+            <button role="tab" aria-selected="false" data-code="json">Real response</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>Copy</span></button>
+        </div>
+        <pre class="code" id="code-view" tabindex="0"></pre>
+      </div>
+
+      <h3 class="sub-h">Rules to know</h3>
+      <div class="rules">
+        <div class="rule"><b>type: "noul"</b><span>Criteria are optional: <code>true_description</code> and <code>false_description</code>. Returns <code>noul</code>, the chance of yes from 0 to 1.</span></div>
+        <div class="rule"><b>type: "choice"</b><span>Criteria are an object of 2 to 255 options, each <code>key: description</code>. Returns <code>choice</code> and <code>probabilities</code>.</span></div>
+        <div class="rule"><b>type: "score"</b><span>Criteria are a list of 2 to 255 levels, lowest first, numbered from 0. Returns <code>score</code>, <code>probabilities</code> and a <code>legend</code>.</span></div>
+        <div class="rule"><b>input blocks</b><span><code>text</code>, <code>image</code>, <code>audio</code>, <code>video</code> or <code>document</code> (PDF). Files are base64 with a <code>mime_type</code>.</span></div>
+        <div class="rule"><b>resolution</b><span>For image and video blocks: <code>low</code>, <code>medium</code>, <code>high</code> or <code>ultra_high</code>.</span></div>
+        <div class="rule"><b>api_version: "v1beta"</b><span>The playground calls the API through the <code>v1beta</code> version of the Gemini API.</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== GOOD QUESTIONS ===================== -->
+    <section class="sec" id="good-questions">
+      <p class="eyebrow">Using it · 5</p>
+      <h2>Writing good questions</h2>
+      <div class="prose">
+        <p class="lede">The model can only choose well between answers that are clear. Most of the quality comes from how you write the question.</p>
+      </div>
+      <div class="tips mt-l">
+        <div class="tip"><h4>Ask one thing at a time</h4><p>Split a double question into two. Both run in the same request, and the input is only billed once.</p><div class="pair"><span class="bad">Is it urgent and about billing?</span><span class="good">is_urgent + category</span></div></div>
+        <div class="tip"><h4>Say what yes and no mean</h4><p>"Urgent" means different things to different teams. Spell it out in the YES and NO descriptions.</p><div class="pair"><span class="bad">Is this urgent?</span><span class="good">YES when it mentions a deadline, money lost or an escalation.</span></div></div>
+        <div class="tip"><h4>Cover every case</h4><p>The model must pick one option, so give it somewhere to go when nothing fits.</p><div class="pair"><span class="bad">billing · technical · account</span><span class="good">billing · technical · account · other</span></div></div>
+        <div class="tip"><h4>Keep options distinct</h4><p>Overlapping options split the probability between them and lower confidence.</p><div class="pair"><span class="bad">slow_service · long_wait</span><span class="good">wait_time · staff</span></div></div>
+        <div class="tip"><h4>Order levels, and describe each one</h4><p>List rubric levels from lowest to highest, with a short sentence for each.</p><div class="pair"><span class="bad">Bad · OK · Good</span><span class="good">Poor: unclear · Fair: gaps · Good: clear · Excellent: complete</span></div></div>
+        <div class="tip"><h4>Act on confidence</h4><p>Pick a threshold. Let high-confidence answers flow through and send the rest to a person.</p><div class="pair"><span class="bad">Trust every answer the same</span><span class="good">Auto-route above 90%, review below</span></div></div>
+      </div>
+    </section>
+
+    <!-- ===================== GLOSSARY ===================== -->
+    <section class="sec" id="glossary">
+      <p class="eyebrow">Reference</p>
+      <h2>Glossary</h2>
+      <div class="gloss-tools mt-m">
+        <div class="field-row">
+          <label for="gloss-q" class="note" style="flex:none">Search terms</label>
+          <input type="search" id="gloss-q" placeholder="Try confidence, rubric or tokens" autocomplete="off">
+        </div>
+        <span class="note" id="gloss-count"></span>
+      </div>
+      <dl class="gloss mt-m" id="gloss"></dl>
+
+      <footer class="sources">
+        <p><b style="color:var(--fg)">Sources and credits</b></p>
+        <ul>
+          <li>Model facts and prices: <a href="https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/" target="_blank" rel="noopener">Google, "Gemini Decisions API: Fast, calibrated multimodal decisions"</a>, November 11, 2026.</li>
+          <li>Every answer, probability, token count and response time in the examples comes from real <code>gemini-decision-1</code> runs in the playground, November 24–25, 2026. Response times measured in the playground include the network and the app.</li>
+          <li>Use cases in the in-depth sections are illustrations of how each type can be applied. They are not measured results.</li>
+          <li>Photos: burger dinner and "Clear Umbrella Rain Liverpool", both CC0 from Wikimedia Commons.</li>
+          <li>Source code for the playground and this guide: <a href="https://github.com/YatharthAndharia/Google-Decision-APIs" target="_blank" rel="noopener">github.com/YatharthAndharia/Google-Decision-APIs</a>.</li>
+        </ul>
+      </footer>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ============ settings ============ */
+const APP_URL = ""; // the public playground address, e.g. "https://your-app.streamlit.app"
+
+const VIDEOS = {
+  overview: { id: "hx9EuYXwO9w", title: "The Decision API explained", dur: "1:41", img: "img/video-overview.jpg" },
+  noul:     { id: "0RdOQG8quZs", title: "Yes / No, step by step in the playground", dur: "2:18", img: "img/video-yesno.jpg" },
+  choice:   { id: "1pdNN3kxNp8", title: "Multiple choice, step by step in the playground", dur: "2:21", img: "img/video-choice.jpg" },
+  score:    { id: "b_JcJF46ImA", title: "Rubric score, step by step in the playground", dur: "2:25", img: "img/video-score.jpg" },
+};
+
+/* ============ helpers ============ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+const band = c => (c >= 0.8 ? "high" : c >= 0.5 ? "mid" : "low");
+const bandWord = { high: "High", mid: "Moderate", low: "Low" };
+const TYPE_LABEL = { noul: "Yes / No", choice: "Multiple choice", score: "Rubric score" };
+const extIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+const playIcon = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============ theme toggle ============ */
+(function theme() {
+  const order = ["system", "light", "dark"];
+  let cur = "system";
+  try { const t = localStorage.getItem("gdg-theme"); if (t === "light" || t === "dark") cur = t; } catch (e) {}
+  const label = () => $$("[data-theme-toggle] span").forEach(s => (s.textContent = "Theme: " + cur));
+  const apply = () => {
+    if (cur === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", cur);
+    try { if (cur === "system") localStorage.removeItem("gdg-theme"); else localStorage.setItem("gdg-theme", cur); } catch (e) {}
+    $$("[data-theme-toggle]").forEach(b => b.setAttribute("aria-label", "Theme: " + cur + ". Click to change."));
+    label();
+  };
+  $$("[data-theme-toggle]").forEach(b => b.addEventListener("click", () => { cur = order[(order.indexOf(cur) + 1) % order.length]; apply(); }));
+  label();
+})();
+
+/* ============ video ============ */
+function videoCard(v) {
+  return `<a class="vcard" href="https://youtu.be/${v.id}" target="_blank" rel="noopener">
+    <span class="vthumb"><img src="${v.img}" alt="" loading="lazy"><span class="play"><span>${playIcon}</span></span><span class="dur">${v.dur}</span></span>
+    <span><span class="vt">${esc(v.title)}</span><span class="vs">Watch on YouTube ${extIcon}</span></span></a>`;
+}
+function videoPlayer(v) {
+  return `<div class="yt">
+    <div class="yt-frame"><button type="button" data-yt="${v.id}" aria-label="Play video: ${esc(v.title)}">
+      <img src="${v.img}" alt="" loading="lazy"><span class="play"><span>${playIcon}</span></span></button></div>
+    <div class="yt-info"><span class="vt">${esc(v.title)} · ${v.dur}</span><a href="https://youtu.be/${v.id}" target="_blank" rel="noopener">Open on YouTube ${extIcon}</a></div>
+  </div>`;
+}
+$$(".yt-slot").forEach(s => (s.innerHTML = videoPlayer(VIDEOS[s.dataset.video])));
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-yt]");
+  if (!b) return;
+  const f = document.createElement("iframe");
+  f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0`;
+  f.title = b.getAttribute("aria-label").replace("Play video: ", "");
+  f.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+  f.allowFullscreen = true;
+  f.referrerPolicy = "strict-origin-when-cross-origin";
+  b.replaceWith(f);
+});
+
+/* playground links */
+(function appLinks() {
+  const note = $("#app-note");
+  $$("[data-app-link]").forEach(a => {
+    if (APP_URL) { a.href = APP_URL; a.target = "_blank"; a.rel = "noopener"; }
+    else if (a.closest(".trybar")) { a.setAttribute("aria-disabled", "true"); a.addEventListener("click", e => e.preventDefault()); }
+  });
+  if (note) note.textContent = APP_URL ? "Free to use, no sign-in needed." : "The public link is coming soon.";
+})();
+
+/* ============ result rendering ============ */
+function confBlock(c) {
+  const b = band(c);
+  return `<div class="conf"><div class="conf-top"><span>Confidence</span><b class="${b}">${bandWord[b]} · ${pct(c)}</b></div>
+    <div class="track"><div class="fill ${b === "high" ? "" : b}" data-w="${(c * 100).toFixed(1)}"></div></div></div>`;
+}
+function probRows(rows, title = "Probabilities") {
+  return `<div class="probs"><div class="probs-title">${title}</div>` + rows.map(([l, p, s]) =>
+    `<div class="pb${s ? " sel" : ""}"><span class="lbl" title="${esc(l)}">${esc(l)}</span><div class="track"><div class="fill" data-w="${(p * 100).toFixed(1)}"></div></div><span class="v">${pct(p)}</span></div>`).join("") + `</div>`;
+}
+function resultCard(a) {
+  let body = "";
+  if (a.type === "noul") {
+    const yes = a.yes >= 0.5;
+    body += `<div class="verdict ${yes ? "yes" : "no"}">${yes ? "Yes" : "No"}</div>`;
+    const hint = yes ? a.yesDesc : a.noDesc;
+    if (hint) body += `<p class="verdict-sub">${esc(hint)}</p>`;
+    body += confBlock(a.conf) + probRows([["Yes", a.yes, yes], ["No", 1 - a.yes, !yes]], "Probability");
+  } else if (a.type === "choice") {
+    const sorted = Object.entries(a.probs).sort((x, y) => y[1] - x[1]);
+    body += `<div class="verdict pick">${esc(sorted[0][0])}</div>`;
+    if (a.opts && a.opts[sorted[0][0]]) body += `<p class="verdict-sub">${esc(a.opts[sorted[0][0]])}</p>`;
+    body += confBlock(a.conf) + probRows(sorted.map(([k, p], i) => [k, p, i === 0]));
+  } else {
+    const n = a.levels.length - 1;
+    let top = 0; a.probs.forEach((p, i) => { if (p > a.probs[top]) top = i; });
+    body += `<div class="verdict sc">${a.score.toFixed(2)} <small>/ ${n}</small></div>`;
+    body += `<p class="verdict-sub">Most likely: ${esc(a.levels[top].split(":")[0])}</p>`;
+    body += `<div><div class="scale"><span class="pin" style="left:${(a.score / n * 100).toFixed(1)}%"></span></div><div class="scale-ticks">${a.levels.map((_, i) => `<span>${i}</span>`).join("")}</div></div>`;
+    body += confBlock(a.conf) + probRows(a.levels.map((l, i) => [i + " · " + l.split(":")[0], a.probs[i], i === top]).reverse());
+  }
+  const kp = a.kpi ? `<div class="kpis"><span><b>${a.kpi[0]}</b> tokens</span><span><b>${a.kpi[1]}</b> response time</span></div>` : "";
+  return `<div class="rcard"><div class="rcard-head"><span class="k">${esc(a.key)}</span><span class="chip ${a.type}">${TYPE_LABEL[a.type]}</span></div>
+    <p class="instr">${esc(a.instr)}</p>${body}${kp}</div>`;
+}
+function growBars(root) {
+  const fills = $$(".fill[data-w]", root);
+  if (reduceMotion()) { fills.forEach(f => (f.style.width = f.dataset.w + "%")); return; }
+  fills.forEach(f => (f.style.width = "0"));
+  requestAnimationFrame(() => requestAnimationFrame(() => fills.forEach(f => (f.style.width = f.dataset.w + "%"))));
+}
+
+/* ============ hero ============ */
+const SCAM_TEXT = 'Hi! Your parcel could not be delivered because of an unpaid customs fee of <mark>$1.99</mark>. Pay within <mark>12 hours</mark> or it will be sent back: <mark>http://parcel-redelivery-help.co/pay</mark>';
+const HERO = {
+  scam: {
+    input: `<div class="input-label">Input · text</div><p class="sms">${SCAM_TEXT}</p>`,
+    answers: [
+      { key: "is_scam", type: "noul", instr: "Is this message a scam?", val: "Yes", cls: "yes", conf: 0.99 },
+      { key: "message_type", type: "choice", instr: "What kind of message is this?", val: "delivery", cls: "pick", conf: 0.9964 },
+      { key: "risk_level", type: "score", instr: "How risky is it to click the link?", val: "2.90", sub: "/ 3 · Dangerous", cls: "sc", conf: 0.906 },
+    ],
+    foot: "<span><b>341</b> input tokens</span><span><b>0</b> output tokens</span><span><b>1</b> request</span>",
+  },
+  burger: {
+    input: `<div class="input-label">Input · photo</div><div class="photo-in"><img src="img/burger.jpg" alt="A burger with fries on a plate"><div class="meta"><span><b style="color:var(--fg)">burger.jpg</b></span><span>One photo, three questions</span></div></div>`,
+    answers: [
+      { key: "is_vegetarian", type: "noul", instr: "Is this meal vegetarian?", val: "No", cls: "no", conf: 0.8848 },
+      { key: "meal_style", type: "choice", instr: "Which style of meal is this?", val: "fast_food", cls: "pick", conf: 0.9573 },
+      { key: "healthiness", type: "score", instr: "How healthy is this meal?", val: "0.59", sub: "/ 3 · Very unhealthy", cls: "sc", conf: 0.5304 },
+    ],
+    foot: "<span><b>532</b> image tokens</span><span><b>301</b> text tokens</span><span><b>0</b> output tokens</span>",
+  },
+};
+function renderHero(which) {
+  const h = HERO[which];
+  const rows = h.answers.map(a => {
+    const b = band(a.conf);
+    return `<div class="ans">
+      <div class="ans-q"><span class="k">${a.key}</span><span class="chip ${a.type}">${TYPE_LABEL[a.type]}</span></div>
+      <div class="ans-val ${a.cls}">${a.val}${a.sub ? ` <small>${a.sub}</small>` : ""}</div>
+      <p class="ans-instr">${a.instr}</p>
+      <div class="ans-meter"><div class="track"><div class="fill ${b === "high" ? "" : b}" data-w="${(a.conf * 100).toFixed(1)}"></div></div><span>${bandWord[b]} · ${pct(a.conf)}</span></div>
+    </div>`;
+  }).join("");
+  $("#hero-body").innerHTML = `<div class="input-zone">${h.input}</div><div class="answers">${rows}</div><div class="instrument-foot">${h.foot}</div>`;
+  growBars($("#hero-body"));
+}
+$$("[data-hero]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-hero]").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  renderHero(b.dataset.hero);
+}));
+renderHero("scam");
+
+/* ============ writer vs decision ============ */
+const GEN_REPLY = $("#gen-text").textContent;
+let genTimer = null;
+function showCompare(mode) {
+  $$("[data-cmp]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.cmp === mode)));
+  const g = $("#side-gen"), d = $("#side-dec"), t = $("#gen-text");
+  g.classList.toggle("lit", mode === "gen"); g.classList.toggle("dim", mode !== "gen");
+  d.classList.toggle("lit", mode === "dec"); d.classList.toggle("dim", mode !== "dec");
+  clearInterval(genTimer);
+  if (mode === "gen" && !reduceMotion()) {
+    const words = GEN_REPLY.split(" "); let i = 0;
+    t.innerHTML = '<span class="caret"></span>';
+    genTimer = setInterval(() => {
+      i++;
+      t.innerHTML = esc(words.slice(0, i).join(" ")) + (i < words.length ? ' <span class="caret"></span>' : "");
+      if (i >= words.length) clearInterval(genTimer);
+    }, 70);
+  } else {
+    t.textContent = GEN_REPLY;
+    if (mode === "dec") growBars(d);
+  }
+}
+$$("[data-cmp]").forEach(b => b.addEventListener("click", () => showCompare(b.dataset.cmp)));
+
+/* ============ anatomy ============ */
+const P = (part, html) => `<span class="part" data-part="${part}">${html}</span>`;
+const K = s => `<span class="c-k">"${s}"</span>`;
+const S = s => `<span class="c-s">"${s}"</span>`;
+const N = s => `<span class="c-n">${s}</span>`;
+const ANAT = {
+  req: {
+    code:
+`{
+  ${P("model", `${K("model")}: ${S("gemini-decision-1")}`)},
+  ${P("input", `${K("input")}: [
+    ${P("block", `{ ${K("type")}: ${S("text")},
+      ${K("text")}: ${S("Hi! Your parcel could not be delivered…")} }`)}
+  ]`)},
+  ${P("questions", `${K("questions")}: {
+    ${P("key", K("is_scam"))}: {
+      ${P("type", `${K("type")}: ${S("noul")}`)},
+      ${P("instructions", `${K("instructions")}: ${S("Is this message a scam?")}`)},
+      ${P("criteria", `${K("criteria")}: {
+        ${K("true_description")}: ${S("Asks for money … or uses urgency.")},
+        ${K("false_description")}: ${S("A genuine message …")}
+      }`)}
+    },
+    ${P("key", K("message_type"))}: {
+      ${P("type", `${K("type")}: ${S("choice")}`)},
+      ${P("instructions", `${K("instructions")}: ${S("What kind of message is this?")}`)},
+      ${P("criteria", `${K("criteria")}: {
+        ${K("delivery")}: ${S("About a parcel or a delivery")},
+        ${K("bank")}: ${S("About a bank account or card")},
+        <span class="c-c">…two more options</span>
+      }`)}
+    }
+  }`)}
+}`,
+    parts: [
+      ["model", "model", "Which decision model to use."],
+      ["input", "input", "A list of blocks the model looks at. Every question shares it."],
+      ["block", "input block", "One piece of input: text, or a file as base64 with its mime_type."],
+      ["questions", "questions", "An object of questions. Up to 1,000 per request."],
+      ["key", "question ID", "Your name for each question. The answer comes back under it."],
+      ["type", "type", "noul for Yes / No, choice for Multiple choice, score for Rubric score."],
+      ["instructions", "instructions", "The question itself, in plain words."],
+      ["criteria", "criteria", "The possible answers: yes and no descriptions, options, or ordered levels."],
+    ],
+  },
+  res: {
+    code:
+`{
+  ${P("answers", `${K("answers")}: {
+    ${P("key", K("is_scam"))}: {
+      ${P("type", `${K("type")}: ${S("noul")}`)},
+      ${P("value", `${K("noul")}: ${N("0.99")}`)},
+      ${P("confidence", `${K("confidence")}: ${N("0.99")}`)}
+    },
+    ${P("key", K("message_type"))}: {
+      ${P("type", `${K("type")}: ${S("choice")}`)},
+      ${P("value", `${K("choice")}: ${S("delivery")}`)},
+      ${P("confidence", `${K("confidence")}: ${N("0.9964")}`)},
+      ${P("probabilities", `${K("probabilities")}: {
+        ${K("delivery")}: ${N("0.9964")}, ${K("promotion")}: ${N("0.0019")},
+        ${K("bank")}: ${N("0.0014")}, ${K("friend")}: ${N("0.0003")}
+      }`)}
+    }
+  }`)},
+  ${P("usage", `${K("usage")}: {
+    ${K("input_tokens_by_modality")}: [{ ${K("modality")}: ${S("text")}, ${K("tokens")}: ${N("341")} }],
+    ${K("total_output_tokens")}: ${N("0")}
+  }`)}
+}`,
+    parts: [
+      ["answers", "answers", "One entry per question you asked."],
+      ["key", "question ID", "The same IDs you sent, so your code can find each answer."],
+      ["type", "type", "Echoes the question's type."],
+      ["value", "noul / choice / score", "The decision itself: chance of yes, the picked option, or the score."],
+      ["confidence", "confidence", "The probability of the picked answer, from 0 to 1."],
+      ["probabilities", "probabilities", "A probability for every option or level. They add up to 1."],
+      ["usage", "usage", "Tokens counted per kind of input. Output is always 0."],
+    ],
+  },
+};
+function renderAnat(mode) {
+  const a = ANAT[mode];
+  $("#anat-code").innerHTML = a.code;
+  $("#anat-list").innerHTML = a.parts.map(([p, nm, ds], i) =>
+    `<li><button type="button" data-p="${p}" class="${i === 0 ? "on" : ""}"><span class="nm"><span class="sw"></span>${nm}</span><span class="ds">${ds}</span></button></li>`).join("");
+  lightPart(a.parts[0][0]);
+  $$("#anat-list button").forEach(b => {
+    const go = () => { $$("#anat-list button").forEach(x => x.classList.toggle("on", x === b)); lightPart(b.dataset.p); };
+    b.addEventListener("click", go); b.addEventListener("mouseenter", go); b.addEventListener("focus", go);
+  });
+}
+function lightPart(p) { $$("#anat-code .part").forEach(s => s.classList.toggle("on", s.dataset.part === p)); }
+$$("[data-anat]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-anat]").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  renderAnat(b.dataset.anat);
+}));
+renderAnat("req");
+
+/* ============ cost calculator ============ */
+function calc() {
+  const t = Math.max(0, +$("#calc-tokens").value || 0);
+  const n = Math.max(0, +$("#calc-requests").value || 0);
+  const cost = t * n * 0.10 / 1e6;
+  $("#calc-cost").textContent = "$" + (cost < 0.01 && cost > 0 ? cost.toFixed(5) : cost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  $("#calc-per").textContent = t ? `About ${Math.floor(1e6 / (t * 0.10)).toLocaleString("en-US")} requests per dollar` : "Enter a token count";
+}
+$$("[data-tok]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-tok]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  $("#calc-tokens").value = b.dataset.tok; calc();
+}));
+$("#calc-tokens").addEventListener("input", () => { $$("[data-tok]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.tok === $("#calc-tokens").value))); calc(); });
+$("#calc-requests").addEventListener("input", calc);
+calc();
+
+/* ============ type explorer ============ */
+const TYPES = {
+  noul: {
+    title: "Yes / No", api: "noul", anchor: "#yes-no",
+    what: "A question with two answers. The model returns the chance that the answer is yes.",
+    provide: "An instruction, plus optional descriptions of what YES and NO mean.",
+    get: "noul (chance of yes, 0 to 1) and confidence.",
+    use: "Policy checks, spam and scam filters, \"does this need a reply?\", \"is this safe to publish?\"",
+    ctx: "Hi Sam, the client moved our meeting to tomorrow at 9 am. Can you confirm you can still present the slides?",
+    card: { key: "needs_reply_today", type: "noul", instr: "Does this email need a reply today?", yes: 0.969, conf: 0.969,
+      yesDesc: "It asks a question or has a deadline within a day.", noDesc: "It is only for information, with no action needed.", kpi: ["158", "1.29 s"] },
+  },
+  choice: {
+    title: "Multiple choice", api: "choice", anchor: "#multiple-choice",
+    what: "Pick exactly one option from a list you write. Every option gets a probability.",
+    provide: "An instruction and 2 to 255 options, each a short key and a description.",
+    get: "choice (the picked key), confidence and probabilities for all options.",
+    use: "Routing tickets to a team, tagging content, intent detection, picking the right tool.",
+    ctx: "The pasta was delicious, but we waited 45 minutes for a table and nobody even said sorry. Not sure we'll come back.",
+    card: { key: "main_complaint", type: "choice", instr: "What is the customer's main complaint?",
+      probs: { wait_time: 0.805, staff: 0.185, food: 0.007, price: 0.003 }, conf: 0.805,
+      opts: { wait_time: "Long waits or slow service" }, kpi: ["151", "1.14 s"] },
+  },
+  score: {
+    title: "Rubric score", api: "score", anchor: "#rubric-score",
+    what: "Grade the input on an ordered scale. Levels are numbered from 0, lowest first.",
+    provide: "An instruction and 2 to 255 levels, from lowest to highest.",
+    get: "score (a weighted average of level numbers), confidence, probabilities per level and a legend.",
+    use: "Sentiment, quality grading, risk levels, satisfaction, how well an answer meets a standard.",
+    ctx: "The room was clean and the staff were friendly, but the Wi-Fi kept dropping and breakfast was cold. Overall, an okay stay.",
+    card: { key: "satisfaction", type: "score", instr: "How satisfied is the guest?",
+      levels: ["Very unhappy: angry or asking for a refund", "Unhappy: disappointed, with clear problems", "Neutral: mixed feelings", "Happy: mostly positive", "Very happy: delighted, would recommend"],
+      probs: [0.006, 0.141, 0.748, 0.100, 0.005], score: 1.96, conf: 0.748, kpi: ["160", "0.97 s"] },
+  },
+};
+function renderType(t) {
+  const d = TYPES[t];
+  $("#type-api-name").innerHTML = `API name: <code>${d.api}</code>`;
+  $("#type-panel").innerHTML = `
+    <div class="tp-left">
+      <h3>${d.title} <span class="chip ${t}">type: "${d.api}"</span></h3>
+      <p style="font-size:16px">${d.what}</p>
+      <dl class="kv">
+        <div><dt>You provide</dt><dd>${d.provide}</dd></div>
+        <div><dt>You get back</dt><dd>${d.get}</dd></div>
+        <div><dt>Good for</dt><dd>${esc(d.use)}</dd></div>
+      </dl>
+      <a class="btn btn-ghost btn-sm" href="${d.anchor}" style="justify-self:start">Read the full ${d.title} section</a>
+      ${videoCard(VIDEOS[t])}
+    </div>
+    <div class="tp-right">
+      <div class="ctx"><div class="input-label">Input · text</div>${esc(d.ctx)}</div>
+      ${resultCard(d.card)}
+    </div>`;
+  growBars($("#type-panel"));
+}
+$$("[data-type]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-type]").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  renderType(b.dataset.type);
+}));
+renderType("noul");
+
+/* ============ type picker ============ */
+const W2 = {
+  yesno: { q: "Is there a middle ground you care about?", opts: [
+    ["noul", "No, it is one or the other", "Allowed or not, spam or not"],
+    ["score", "Yes, degrees matter", "Somewhat urgent, mostly safe"] ] },
+  label: { q: "How do the labels relate to each other?", opts: [
+    ["choice", "Only one can be true, no order", "billing, technical, account"],
+    ["score", "They have an order", "low, medium, high"],
+    ["multi", "Several can be true at once", "tags like sports, politics, local"] ] },
+};
+const RESULTS = {
+  noul: { chip: "noul", title: "Yes / No", why: "Your answer has two sides. You get the chance of yes and can pick your own threshold for acting on it.",
+    ex: `"is_spam": {\n  "type": "noul",\n  "instructions": "Is this message spam?",\n  "criteria": {\n    "true_description": "Unwanted bulk or promotional content",\n    "false_description": "A personal or expected message"\n  }\n}`, link: "#yes-no" },
+  choice: { chip: "choice", title: "Multiple choice", why: "Exactly one label applies and the labels have no order. You get the pick and a probability for every option.",
+    ex: `"team": {\n  "type": "choice",\n  "instructions": "Which team should handle this ticket?",\n  "criteria": {\n    "billing": "Payments, invoices, refunds",\n    "technical": "Bugs, errors, outages",\n    "account": "Login, profile, access",\n    "other": "Anything else"\n  }\n}`, link: "#multiple-choice" },
+  score: { chip: "score", title: "Rubric score", why: "Your answers sit on an ordered scale. You get a score you can sort and average, plus a probability per level.",
+    ex: `"urgency": {\n  "type": "score",\n  "instructions": "How urgent is this request?",\n  "criteria": [\n    "Low: no time pressure",\n    "Normal: this week",\n    "High: today",\n    "Critical: right now, money or safety at risk"\n  ]\n}`, link: "#rubric-score" },
+  multi: { chip: "noul", title: "Several Yes / No questions", why: "Multiple choice always picks exactly one answer. To allow several labels at once, ask one Yes / No question per label. They all run in the same request.",
+    ex: `"is_sports": {\n  "type": "noul",\n  "instructions": "Is this article about sports?"\n},\n"is_politics": {\n  "type": "noul",\n  "instructions": "Is this article about politics?"\n}`, link: "#yes-no", linkText: "Read the full Yes / No section" },
+  free: { chip: "none", title: "Not a decision task", why: "The Decisions API picks from answers you list in advance. For summaries, replies or values taken from the input, use a generative model. You can still use the Decisions API afterwards to check or route what it wrote.",
+    ex: null, link: "#strengths" },
+};
+function showResult(key) {
+  const r = RESULTS[key];
+  $("#wiz-out").innerHTML = `
+    <span class="input-label">Suggested</span>
+    <div class="pick"><h3>${r.title}</h3><span class="chip ${r.chip}">${r.chip === "none" ? "Not a fit" : 'type: "' + r.chip + '"'}</span></div>
+    <p class="why">${r.why}</p>
+    ${r.ex ? `<pre class="code" style="border-radius:10px;border:1px solid var(--line)">${hlJson(r.ex)}</pre>` : ""}
+    <a class="btn btn-ghost btn-sm" href="${r.link}" style="justify-self:start">${r.linkText || (r.chip === "none" ? "See strengths and limits" : "Read the full " + r.title + " section")}</a>`;
+}
+function wizReset() {
+  $$("[data-w1]").forEach(x => x.setAttribute("aria-pressed", "false"));
+  $("#wiz-2-wrap").hidden = true;
+  $("#wiz-out").innerHTML = `<div class="wiz-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3Z"/></svg><span>Pick an answer on the left to get a suggestion.</span></div>`;
+}
+$$("[data-w1]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-w1]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  const k = b.dataset.w1;
+  if (W2[k]) {
+    $("#wiz-2-q").textContent = W2[k].q;
+    $("#wiz-2").innerHTML = W2[k].opts.map(([r, t, s]) => `<button class="opt" type="button" aria-pressed="false" data-w2="${r}"><b>${t}</b><span>${s}</span></button>`).join("");
+    $("#wiz-2-wrap").hidden = false;
+    $$("[data-w2]").forEach(x => x.addEventListener("click", () => {
+      $$("[data-w2]").forEach(y => y.setAttribute("aria-pressed", String(y === x)));
+      showResult(x.dataset.w2);
+    }));
+    $("#wiz-out").innerHTML = `<div class="wiz-empty"><span>One more question on the left.</span></div>`;
+  } else {
+    $("#wiz-2-wrap").hidden = true;
+    showResult(k === "scale" ? "score" : "free");
+  }
+}));
+$("#wiz-reset").addEventListener("click", wizReset);
+
+/* ============ score lab ============ */
+const LEVELS = ["Very unhappy", "Unhappy", "Neutral", "Happy", "Very happy"];
+const REAL = [0.6, 14.1, 74.8, 10.0, 0.5];
+$("#score-sliders").innerHTML = LEVELS.map((l, i) => `
+  <div class="slider"><label class="lv" for="sl-${i}"><span class="n">${i}</span><span class="t">${l}</span></label>
+  <input type="range" id="sl-${i}" min="0" max="100" step="0.1" value="${REAL[i]}"><output id="so-${i}" for="sl-${i}">${REAL[i].toFixed(1)}%</output></div>`).join("");
+function score() {
+  const raw = LEVELS.map((_, i) => +$("#sl-" + i).value);
+  const sum = raw.reduce((a, b) => a + b, 0) || 1;
+  const p = raw.map(v => v / sum);
+  const s = p.reduce((a, v, i) => a + v * i, 0);
+  let top = 0; p.forEach((v, i) => { if (v > p[top]) top = i; });
+  p.forEach((v, i) => ($("#so-" + i).textContent = (v * 100).toFixed(1) + "%"));
+  $("#score-val").textContent = s.toFixed(2);
+  $("#score-top").textContent = `${LEVELS[top]} (${(p[top] * 100).toFixed(1)}%)`;
+  $("#score-pin").style.left = (s / 4 * 100) + "%";
+  $("#score-math").innerHTML = p.map((v, i) => `${i} × ${(v * 100).toFixed(1)}%`).join(" + ") + ` = <b>${s.toFixed(2)}</b>`;
+}
+$$("#score-sliders input").forEach(r => r.addEventListener("input", score));
+$("#score-reset").addEventListener("click", () => { REAL.forEach((v, i) => ($("#sl-" + i).value = v)); score(); });
+score();
+
+/* ============ confidence lab ============ */
+function conf() {
+  const p = +$("#conf-slider").value / 100;
+  const yes = p >= 0.5;
+  const c = yes ? p : 1 - p;
+  const b = band(c);
+  $("#conf-p").textContent = (p * 100).toFixed(1) + "%";
+  const v = $("#conf-verdict"); v.textContent = yes ? "Yes" : "No"; v.className = "verdict " + (yes ? "yes" : "no");
+  $("#conf-val").textContent = (c * 100).toFixed(1) + "%";
+  const f = $("#conf-fill"); f.style.width = (c * 100) + "%"; f.className = "fill" + (b === "high" ? "" : " " + b);
+  $$(".bands div").forEach(d => d.classList.toggle("on", d.dataset.band === b));
+  $("#conf-advice").textContent =
+    b === "high" ? `The model is ${(c * 100).toFixed(0)}% sure the answer is ${yes ? "yes" : "no"}. A good candidate for acting automatically.` :
+    b === "mid" ? `A close call: ${(c * 100).toFixed(0)}% ${yes ? "yes" : "no"} against ${(100 - c * 100).toFixed(0)}% the other way. Worth a second look, or a clearer question.` :
+    "Low confidence. Treat this as unsure and check it by hand.";
+}
+$("#conf-slider").addEventListener("input", conf);
+$$("[data-conf]").forEach(b => b.addEventListener("click", () => { $("#conf-slider").value = b.dataset.conf; conf(); }));
+conf();
+
+/* ============ playground videos ============ */
+$("#pg-videos").innerHTML = ["noul", "choice", "score"].map(k => videoCard(VIDEOS[k])).join("");
+
+/* ============ examples ============ */
+const EXAMPLES = [
+  { type: "noul", input: "text", text: "Hi! Your parcel could not be delivered because of an unpaid customs fee of $1.99. Pay within 12 hours or it will be sent back…", key: "is_scam", q: "Is this message a scam?", v: "Yes", cls: "yes", c: "99.0% confidence", detail: ["YES when: asks for money or personal details through a suspicious link, or uses pressure and urgency", "NO when: a genuine message with no suspicious requests"] },
+  { type: "choice", input: "text", text: "Hi! Your parcel could not be delivered because of an unpaid customs fee of $1.99…", key: "message_type", q: "What kind of message is this?", v: "delivery", cls: "pick", c: "99.6% · promotion 0.2%", detail: ["delivery 99.6%", "promotion 0.2%", "bank 0.1%", "friend 0.0%"] },
+  { type: "score", input: "text", text: "Hi! Your parcel could not be delivered because of an unpaid customs fee of $1.99…", key: "risk_level", q: "How risky is it to click the link in this message?", v: "2.90 / 3", cls: "sc", c: "Dangerous · 90.6%", detail: ["0 Safe 0.1%", "1 Low risk 0.5%", "2 Suspicious 8.8%", "3 Dangerous 90.6%"] },
+  { type: "noul", input: "photo", img: "img/burger.jpg", alt: "Burger and fries", text: "A photo of a burger dinner", key: "is_vegetarian", q: "Is this meal vegetarian?", v: "No", cls: "no", c: "Chance of yes 11.5%", detail: ["YES when: no meat or fish anywhere in the meal", "NO when: the meal contains meat or fish", "Confidence 88.5%"] },
+  { type: "choice", input: "photo", img: "img/burger.jpg", alt: "Burger and fries", text: "A photo of a burger dinner", key: "meal_style", q: "Which style of meal is this?", v: "fast_food", cls: "pick", c: "95.7% confidence", detail: ["fast_food 95.7%", "fine_dining 2.1%", "home_cooked 1.4%", "healthy_bowl 0.8%"] },
+  { type: "score", input: "photo", img: "img/burger.jpg", alt: "Burger and fries", text: "A photo of a burger dinner", key: "healthiness", q: "How healthy is this meal?", v: "0.59 / 3", cls: "sc", c: "Very unhealthy · 53.0%", detail: ["0 Very unhealthy 53.0%", "1 Unhealthy 36.3%", "2 Balanced 9.2%", "3 Very healthy 1.4%", "Moderate confidence: a near tie"] },
+  { type: "noul", input: "text", text: "Hi Sam, the client moved our meeting to tomorrow at 9 am. Can you confirm you can still present the slides?", key: "needs_reply_today", q: "Does this email need a reply today?", v: "Yes", cls: "yes", c: "96.9% confidence", detail: ["YES when: it asks a question or has a deadline within a day", "NO when: it is only for information, with no action needed", "158 tokens · 1.29 s"] },
+  { type: "noul", input: "text", text: "Great video! I learned a lot. Thanks for sharing these tips with everyone.", key: "meets_policy", q: "Does the content comply with our community guidelines?", v: "Yes", cls: "yes", c: "97.1% confidence", detail: ["Playground template", "YES when: no harassment, hate speech, spam or explicit content", "NO when: contains any prohibited content"] },
+  { type: "choice", input: "text", text: "The pasta was delicious, but we waited 45 minutes for a table and nobody even said sorry. Not sure we'll come back.", key: "main_complaint", q: "What is the customer's main complaint?", v: "wait_time", cls: "pick", c: "80.5% · staff 18.5%", detail: ["wait_time 80.5%", "staff 18.5%", "food 0.7%", "price 0.3%", "151 tokens · 1.14 s"] },
+  { type: "choice", input: "text", text: "Hi, I was charged twice for my Pro plan this month. Can you please refund one of the payments?", key: "category", q: "Which category best describes this input?", v: "billing", cls: "pick", c: "99.8% confidence", detail: ["Playground template", "Options: billing, technical, account, other"] },
+  { type: "choice", input: "photo", img: "img/rainy.jpg", alt: "A clear umbrella in the rain", text: "A street photo with a clear umbrella", key: "weather", q: "What's the weather in this photo?", v: "rainy", cls: "pick", c: "97.7% confidence", detail: ["Options: sunny, cloudy, rainy, snowy"] },
+  { type: "score", input: "text", text: "The room was clean and the staff were friendly, but the Wi-Fi kept dropping and breakfast was cold. Overall, an okay stay.", key: "satisfaction", q: "How satisfied is the guest?", v: "1.96 / 4", cls: "sc", c: "Neutral · 74.8%", detail: ["0 Very unhappy 0.6%", "1 Unhappy 14.1%", "2 Neutral 74.8%", "3 Happy 10.0%", "4 Very happy 0.5%"] },
+  { type: "score", input: "text", text: "hi app not work again pls fix asap", key: "quality", q: "Rate the overall quality of the input.", v: "0.51 / 3", cls: "sc", c: "Poor · 54.7%", detail: ["Playground template", "Levels: Poor, Fair, Good, Excellent"] },
+  { type: "score", input: "photo", img: "img/rainy.jpg", alt: "A clear umbrella in the rain", text: "A street photo with a clear umbrella", key: "picnic_weather", q: "How good is this weather for a picnic?", v: "0.33 / 3", cls: "sc", c: "Terrible · 71.9%", detail: ["Levels: Terrible, Poor, Okay, Great"] },
+];
+function exCard(e) {
+  return `<article class="ex">
+      <div class="ex-head"><span class="chip ${e.type}">${TYPE_LABEL[e.type]}</span><span class="chip plain">${e.input === "photo" ? "Photo" : "Text"}</span></div>
+      ${e.img ? `<div class="ex-in ph"><img src="${e.img}" alt="${esc(e.alt)}" loading="lazy"><span>${esc(e.text)}</span></div>` : `<p class="ex-in">"${esc(e.text)}"</p>`}
+      <p class="ex-q"><span class="k">${e.key}</span>${esc(e.q)}</p>
+      <div class="ex-a"><span class="v ${e.cls}">${esc(e.v)}</span><span class="c">${esc(e.c)}</span></div>
+      <details><summary>Details</summary><ul>${e.detail.map(d => `<li>${esc(d)}</li>`).join("")}</ul></details>
+    </article>`;
+}
+let fType = "all", fInput = "all";
+function renderGallery() {
+  const list = EXAMPLES.filter(e => (fType === "all" || e.type === fType) && (fInput === "all" || e.input === fInput));
+  $("#ex-count").textContent = `${list.length} of ${EXAMPLES.length} shown`;
+  $("#gallery").innerHTML = list.length ? list.map(exCard).join("") : `<div class="empty">No examples match. Try another filter.</div>`;
+}
+$$("[data-ft]").forEach(b => b.addEventListener("click", () => { fType = b.dataset.ft; $$("[data-ft]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderGallery(); }));
+$$("[data-fi]").forEach(b => b.addEventListener("click", () => { fInput = b.dataset.fi; $$("[data-fi]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderGallery(); }));
+renderGallery();
+$$("[data-mini]").forEach(box => {
+  const t = box.dataset.mini;
+  box.innerHTML = EXAMPLES.filter(e => e.type === t).slice(0, 4).map(exCard).join("") +
+    `<a class="btn btn-ghost btn-sm" href="#examples" style="justify-self:start;align-self:start">All real examples</a>`;
+});
+
+/* ============ code samples ============ */
+const hlPy = src => esc(src)
+  .replace(/(#[^\n]*)/g, '<span class="c-c">$1</span>')
+  .replace(/(&quot;[^&\n]*?&quot;)/g, '<span class="c-s">$1</span>')
+  .replace(/^(\s*)(from|import|with)\b/gm, '$1<span class="c-k">$2</span>')
+  .replace(/\b(print|open)\(/g, '<span class="c-k">$1</span>(')
+  .replace(/ (import|as) /g, ' <span class="c-k">$1</span> ');
+function hlJson(src) {
+  return esc(src)
+    .replace(/(&quot;[^&\n]*?&quot;)(\s*:)/g, '<span class="c-k">$1</span>$2')
+    .replace(/(:\s*)(&quot;[^&\n]*?&quot;)/g, '$1<span class="c-s">$2</span>')
+    .replace(/(^|\[\s*|,\s*)(\n\s*)(&quot;[^&\n]*?&quot;)(?=,?\n)/g, '$1$2<span class="c-s">$3</span>')
+    .replace(/(:\s*)(-?\d[\d.e-]*)/g, '$1<span class="c-n">$2</span>');
+}
+const CODE = {
+  py: { lang: "py", src:
+`from google import genai
+
+client = genai.Client(
+    api_key="YOUR_API_KEY",
+    http_options={"api_version": "v1beta"},
+)
+
+result = client.decisions.create(
+    model="gemini-decision-1",
+    input=[
+        {"type": "text", "text": "Hi! Your parcel could not be delivered because of an unpaid customs fee of $1.99. Pay within 12 hours or it will be sent back: http://parcel-redelivery-help.co/pay"},
+    ],
+    questions={
+        "is_scam": {
+            "type": "noul",
+            "instructions": "Is this message a scam?",
+            "criteria": {
+                "true_description": "Asks for money or personal details through a suspicious link, or uses pressure and urgency.",
+                "false_description": "A genuine message with no suspicious requests.",
+            },
+        },
+        "message_type": {
+            "type": "choice",
+            "instructions": "What kind of message is this?",
+            "criteria": {
+                "delivery": "About a parcel or a delivery",
+                "bank": "About a bank account or card",
+                "friend": "A personal message from a friend or family",
+                "promotion": "An advert or special offer",
+            },
+        },
+        "risk_level": {
+            "type": "score",
+            "instructions": "How risky is it to click the link in this message?",
+            "criteria": [
+                "Safe: nothing suspicious",
+                "Low risk: a little unusual",
+                "Suspicious: several warning signs",
+                "Dangerous: clear signs of fraud",
+            ],
+        },
+    },
+)
+
+answers = result.model_dump(mode="json")["answers"]
+print(answers["is_scam"]["noul"])         # 0.99
+print(answers["message_type"]["choice"])  # delivery
+print(answers["risk_level"]["score"])     # 2.899...
+` },
+  file: { lang: "py", src:
+`import base64
+
+with open("burger.jpg", "rb") as f:
+    photo = base64.b64encode(f.read()).decode("utf-8")
+
+result = client.decisions.create(
+    model="gemini-decision-1",
+    input=[
+        {
+            "type": "image",           # or "audio", "video", "document" (PDF)
+            "data": photo,
+            "mime_type": "image/jpeg",
+            "resolution": "medium",    # images and video: low, medium, high, ultra_high
+        },
+    ],
+    questions={
+        "is_vegetarian": {
+            "type": "noul",
+            "instructions": "Is this meal vegetarian?",
+            "criteria": {
+                "true_description": "No meat or fish anywhere in the meal.",
+                "false_description": "The meal contains meat or fish.",
+            },
+        },
+    },
+)
+` },
+  json: { lang: "json", src:
+`{
+  "answers": {
+    "is_scam": {
+      "type": "noul",
+      "noul": 0.99,
+      "confidence": 0.99
+    },
+    "message_type": {
+      "type": "choice",
+      "choice": "delivery",
+      "confidence": 0.9964334855947299,
+      "probabilities": {
+        "delivery": 0.9964334855947299,
+        "promotion": 0.0019440920224578042,
+        "bank": 0.0013555030439287349,
+        "friend": 0.00026691933888353854
+      }
+    },
+    "risk_level": {
+      "type": "score",
+      "score": 2.8993986437165113,
+      "confidence": 0.9059950150561726,
+      "probabilities": {
+        "0": 0.0005606268548994855,
+        "1": 0.005475117629862169,
+        "2": 0.08796924045906569,
+        "3": 0.9059950150561726
+      },
+      "legend": {
+        "0": "Safe: nothing suspicious",
+        "1": "Low risk: a little unusual",
+        "2": "Suspicious: several warning signs",
+        "3": "Dangerous: clear signs of fraud"
+      }
+    }
+  },
+  "usage": {
+    "input_tokens_by_modality": [
+      { "modality": "text", "tokens": 341 }
+    ],
+    "total_input_tokens": 341,
+    "total_output_tokens": 0,
+    "total_tokens": 341
+  }
+}
+` },
+};
+let codeKey = "py";
+function renderCode(k) {
+  codeKey = k;
+  const c = CODE[k];
+  $("#code-view").innerHTML = c.lang === "json" ? hlJson(c.src) : hlPy(c.src);
+}
+$$("[data-code]").forEach(b => b.addEventListener("click", () => {
+  $$("[data-code]").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  renderCode(b.dataset.code);
+}));
+renderCode("py");
+$("#copy-btn").addEventListener("click", () => {
+  const label = $("#copy-btn span");
+  const done = msg => { label.textContent = msg; setTimeout(() => (label.textContent = "Copy"), 1600); };
+  const fallback = () => {
+    const r = document.createRange(); r.selectNodeContents($("#code-view"));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    done("Selected, press Ctrl+C");
+  };
+  try { navigator.clipboard.writeText(CODE[codeKey].src).then(() => done("Copied"), fallback); }
+  catch (e) { fallback(); }
+});
+
+/* ============ glossary ============ */
+const TERMS = [
+  ["Decision model", "", "An AI model that chooses from answers you provide and says how likely each one is, instead of writing new text."],
+  ["Closed-set decision", "", "A question whose possible answers are fixed in advance, such as yes or no, or a list of categories."],
+  ["Gemini Decisions API", "", "Google's service for decision questions. One request holds one shared input and up to 1,000 questions."],
+  ["gemini-decision-1", "model", "The model behind the Decisions API, released November 11, 2026."],
+  ["Input", "input", "What the model looks at: text plus any images, audio, video or PDF files. Every question in the request shares it."],
+  ["Input block", "", "One piece of the input. A text block holds text. A file block holds base64 data and a mime_type."],
+  ["Modality", "modality", "The kind of content: text, image, audio, video or document. Token usage is reported per modality."],
+  ["Resolution", "resolution", "For images and video, how much detail to send: low, medium, high or ultra_high. More detail uses more tokens."],
+  ["Question", "", "One thing you want decided. It has an ID, a type, instructions and criteria."],
+  ["Question ID", "key", "Your short name for a question, such as is_scam. The answer comes back under the same name."],
+  ["Instructions", "instructions", "The question in plain words, such as \"Is this message a scam?\""],
+  ["Criteria", "criteria", "The possible answers. Yes and no descriptions, a set of options, or a list of levels, depending on the type."],
+  ["Yes / No", "noul", "A decision type with two answers. Returns noul, the chance of yes from 0 to 1."],
+  ["YES and NO descriptions", "true_description · false_description", "Optional text saying what yes and what no mean for this question. The playground calls them \"Means YES when\" and \"Means NO when\"."],
+  ["Threshold", "", "The value your code compares an answer against before acting, such as \"act when noul is 0.9 or more\". You choose it from the cost of a mistake."],
+  ["Multiple choice", "choice", "A decision type that picks one option from 2 to 255 options you list. Returns the picked option's key."],
+  ["Option", "", "One possible answer in a multiple choice question: a short key your code reads, and a description that helps the model."],
+  ["Runner-up", "", "The second most likely option. The gap between the winner and the runner-up shows how clear the pick was."],
+  ["Multi-label", "", "When several labels can be true at once. Multiple choice cannot do this, so ask one Yes / No question per label."],
+  ["Rubric score", "score", "A decision type that grades the input on 2 to 255 ordered levels, lowest first, numbered from 0."],
+  ["Rubric level", "", "One step on a rubric scale, such as \"Neutral: mixed feelings\"."],
+  ["Legend", "legend", "In a score answer, the map from level numbers back to your level text."],
+  ["Score", "score", "The average of the level numbers, weighted by their probabilities. It can fall between levels, such as 1.96."],
+  ["Probabilities", "probabilities", "How likely the model thinks each possible answer is. They add up to 1, which is 100%."],
+  ["Confidence", "confidence", "The probability of the answer the model picked, from 0 to 1. The playground labels 80% and up High, 50 to 80% Moderate, and below 50% Low."],
+  ["Calibration", "", "How well confidence matches reality. A calibrated model that says 80% is right about 80% of the time."],
+  ["Single forward pass", "", "The model reads the input once and scores every option together, instead of writing an answer one word at a time. This is why it is fast."],
+  ["Token", "", "A small unit of input the model reads, roughly a short word or part of an image. Pricing is per million input tokens."],
+  ["Usage", "usage", "The token count in each response: input tokens per modality, and output tokens, which are always 0."],
+  ["Latency", "", "The time from sending a request to getting the answer. Google quotes 150 to 250 ms. The playground shows its own measured time, which includes the network."],
+];
+function renderGloss() {
+  const q = $("#gloss-q").value.trim().toLowerCase();
+  const hit = t => !q || t.some(x => x.toLowerCase().includes(q));
+  const mk = s => {
+    const e = esc(s);
+    if (!q) return e;
+    const qe = esc(q);
+    const i = e.toLowerCase().indexOf(qe);
+    return i < 0 ? e : e.slice(0, i) + "<mark>" + e.slice(i, i + qe.length) + "</mark>" + e.slice(i + qe.length);
+  };
+  const list = TERMS.filter(hit);
+  $("#gloss-count").textContent = `${list.length} of ${TERMS.length} terms`;
+  $("#gloss").innerHTML = list.length ? list.map(([t, api, d]) =>
+    `<div class="term"><dt>${mk(t)}${api ? ` <code>${mk(api)}</code>` : ""}</dt><dd>${mk(d)}</dd></div>`).join("")
+    : `<div class="term"><dd>No terms match "${esc(q)}".</dd></div>`;
+}
+$("#gloss-q").addEventListener("input", renderGloss);
+renderGloss();
+
+/* ============ contents scrollspy ============ */
+(function spy() {
+  const links = $$("#toc a, #toc-mobile a");
+  const set = id => links.forEach(a => {
+    const on = a.getAttribute("href") === "#" + id;
+    a.classList.toggle("on", on);
+    if (on && a.closest("#toc-mobile")) {
+      const nav = $("#toc-mobile");
+      nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.clientWidth / 2, behavior: reduceMotion() ? "auto" : "smooth" });
+    }
+  });
+  if (!("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) set(e.target.id); });
+  }, { rootMargin: "-30% 0px -60% 0px" });
+  $$("section.sec").forEach(s => io.observe(s));
+  set("start");
+})();
+</script>
+</body>
+</html>
